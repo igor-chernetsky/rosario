@@ -108,32 +108,23 @@ class _RowEditorState extends State<RowEditor> {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        SizedBox(
-            width: 200,
-            child: Card(
-                color: const Color.fromARGB(255, 202, 202, 202),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (((side == 'top' || side == 'bottom') &&
-                            widget.pattern.height > widget.pattern.ydelta) ||
-                        ((side == 'left' || side == 'right') &&
-                            widget.pattern.width > widget.pattern.xdelta))
-                      IconButton(
-                          onPressed: () => (side == 'top' || side == 'bottom')
-                              ? changeColumn(true, side == 'top')
-                              : changeRow(true, side == 'left'),
-                          icon: const Icon(Icons.remove)),
-                    IconButton(
-                        onPressed: () => (side == 'top' || side == 'bottom')
-                            ? changeColumn(false, side == 'top')
-                            : changeRow(false, side == 'left'),
-                        icon: const Icon(Icons.add)),
-                    sideSelector()
-                  ],
-                ))),
+        if (((side == 'top' || side == 'bottom') &&
+                widget.pattern.height > widget.pattern.ydelta) ||
+            ((side == 'left' || side == 'right') &&
+                widget.pattern.width > widget.pattern.xdelta))
+          IconButton(
+              onPressed: () => (side == 'top' || side == 'bottom')
+                  ? changeColumn(true, side == 'top')
+                  : changeRow(true, side == 'left'),
+              icon: const Icon(Icons.remove)),
+        IconButton(
+            onPressed: () => (side == 'top' || side == 'bottom')
+                ? changeColumn(false, side == 'top')
+                : changeRow(false, side == 'left'),
+            icon: const Icon(Icons.add)),
+        sideSelector()
       ],
     );
   }

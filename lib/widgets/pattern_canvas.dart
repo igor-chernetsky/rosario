@@ -27,6 +27,8 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
   bool isEditing = false;
   int rotation = 0;
   bool canRefresh = false;
+  final TransformationController _transformationController =
+      TransformationController();
 
   @override
   void initState() {
@@ -133,6 +135,18 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
     });
   }
 
+  zoom(int value) {
+    var newValue = _transformationController.value.row0[0];
+    newValue += value / 2;
+    Matrix4 matrix4 =
+        Matrix4(newValue, 0, 0, 0, 0, newValue, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    setState(() {
+      selectedColor = null;
+      moveble = true;
+      _transformationController.value = matrix4;
+    });
+  }
+
   rotate() {
     setState(() {
       rotation++;
@@ -164,98 +178,104 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        SizedBox(
-          width: 160,
-          child: Card(
-            color: const Color.fromARGB(255, 202, 202, 202),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  onPressed: selectedColor == null || moveble ? null : paintAll,
-                  color: selectedColor,
-                  icon: const Icon(Icons.format_color_fill),
-                ),
-                if (canRefresh)
-                  IconButton(
-                    onPressed: refresh,
-                    icon: const Icon(Icons.refresh),
-                  ),
-                IconButton(
-                  onPressed: ref.read(historyProvider).isNotEmpty ? undo : null,
-                  icon: const Icon(Icons.undo),
-                ),
-              ],
-            ),
-          ),
-        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Card(
-              color: const Color.fromARGB(255, 202, 202, 202),
-              child: Column(
-                children: [
-                  Container(
-                    height: 34,
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            color: moveble && selectedColor == null
-                                ? Colors.black
-                                : Colors.transparent,
-                            width: 2)),
-                    child: IconButton(
-                        padding: const EdgeInsets.all(2),
-                        onPressed: () {
-                          setState(() {
-                            moveble = true;
-                            selectedColor = null;
-                          });
-                        },
-                        icon: const Icon(Icons.open_with)),
-                  ),
-                  Container(
-                    height: 34,
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            color: !moveble && selectedColor == null
-                                ? Colors.black
-                                : Colors.transparent,
-                            width: 2)),
-                    child: IconButton(
-                        padding: const EdgeInsets.all(2),
-                        onPressed: () {
-                          setState(() {
-                            moveble = false;
-                            selectedColor = null;
-                          });
-                        },
-                        icon: const Icon(Icons.close)),
-                  ),
-                  ColorSelector(
-                      select: (color) => setState(() {
-                            moveble = false;
-                            selectedColor = color;
-                          }),
-                      pattern: widget.pattern,
-                      selectedColor: selectedColor),
-                ],
+            Padding(
+              padding: const EdgeInsets.only(top: 70),
+              child: Card(
+                color: const Color.fromARGB(255, 202, 202, 202),
+                child: Column(
+                  children: [
+                    if (_transformationController.value.row0[0] > 1)
+                      Container(
+                        height: 34,
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                                color: moveble && selectedColor == null
+                                    ? Colors.black
+                                    : Colors.transparent,
+                                width: 2)),
+                        child: IconButton(
+                            padding: const EdgeInsets.all(2),
+                            onPressed: () {
+                              setState(() {
+                                moveble = true;
+                                selectedColor = null;
+                              });
+                            },
+                            icon: const Icon(Icons.open_with)),
+                      ),
+                    Container(
+                      height: 34,
+                      decoration: BoxDecoration(
+                          border: Border.all(
+                              color: !moveble && selectedColor == null
+                                  ? Colors.black
+                                  : Colors.transparent,
+                              width: 2)),
+                      child: IconButton(
+                          padding: const EdgeInsets.all(2),
+                          onPressed: () {
+                            setState(() {
+                              moveble = false;
+                              selectedColor = null;
+                            });
+                          },
+                          icon: const Icon(Icons.close)),
+                    ),
+                    ColorSelector(
+                        select: (color) => setState(() {
+                              moveble = false;
+                              selectedColor = color;
+                            }),
+                        pattern: widget.pattern,
+                        selectedColor: selectedColor),
+                  ],
+                ),
               ),
             ),
           ],
         ),
-        RowEditor(
-            pattern: widget.pattern,
-            afterChange: () {
-              setState(() {
-                selectedColor = null;
-                Future.delayed(const Duration(milliseconds: 100), () {
-                  ref
-                      .read(historyProvider.notifier)
-                      .pushChanges(widget.pattern.matrix!);
-                });
-              });
-            })
+        Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+          SizedBox(
+              width: 330,
+              child: Card(
+                  color: const Color.fromARGB(255, 202, 202, 202),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed:
+                            selectedColor == null || moveble ? null : paintAll,
+                        color: selectedColor,
+                        icon: const Icon(Icons.format_color_fill),
+                      ),
+                      if (canRefresh)
+                        IconButton(
+                          onPressed: refresh,
+                          icon: const Icon(Icons.refresh),
+                        ),
+                      IconButton(
+                        onPressed:
+                            ref.read(historyProvider).isNotEmpty ? undo : null,
+                        icon: const Icon(Icons.undo),
+                      ),
+                      RowEditor(
+                          pattern: widget.pattern,
+                          afterChange: () {
+                            setState(() {
+                              selectedColor = null;
+                              Future.delayed(const Duration(milliseconds: 100),
+                                  () {
+                                ref
+                                    .read(historyProvider.notifier)
+                                    .pushChanges(widget.pattern.matrix!);
+                              });
+                            });
+                          })
+                    ],
+                  )))
+        ])
       ],
     );
   }
@@ -281,8 +301,8 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
           color: Colors.grey,
           height: double.infinity,
           padding: isEditing
-              ? const EdgeInsets.fromLTRB(12, 52, 52, 18)
-              : const EdgeInsets.all(20),
+              ? const EdgeInsets.fromLTRB(12, 58, 52, 18)
+              : const EdgeInsets.fromLTRB(12, 58, 20, 18),
           child: FittedBox(
             child: Listener(
                 onPointerDown: isEditing ? onCanvasClick : null,
@@ -293,7 +313,8 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
                     width: canvasWidth,
                     height: canvasHeight,
                     child: InteractiveViewer(
-                      scaleEnabled: moveble,
+                      transformationController: _transformationController,
+                      scaleEnabled: false,
                       panEnabled: moveble,
                       child: CustomPaint(
                         key: canvasKey,
@@ -327,6 +348,18 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
                 IconButton(
                     onPressed: rotate,
                     icon: const Icon(Icons.rotate_90_degrees_ccw)),
+                IconButton(
+                  onPressed: _transformationController.value.row0[0] == 3
+                      ? null
+                      : () => zoom(1),
+                  icon: const Icon(Icons.zoom_in),
+                ),
+                IconButton(
+                  onPressed: _transformationController.value.row0[0] == 1
+                      ? null
+                      : () => zoom(-1),
+                  icon: const Icon(Icons.zoom_out),
+                ),
                 if (widget.export != null)
                   IconButton(
                       onPressed: () => widget.export!(context, widget.pattern),
