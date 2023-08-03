@@ -298,7 +298,16 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
       children: [
         Container(
           width: double.infinity,
-          color: Colors.grey,
+          height: double.infinity,
+          color: Colors.blueGrey,
+        ),
+        Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(
+              image: DecorationImage(
+                  opacity: 0.6,
+                  image: AssetImage("assets/img/bg1.png"),
+                  repeat: ImageRepeat.repeat)),
           height: double.infinity,
           padding: isEditing
               ? const EdgeInsets.fromLTRB(12, 58, 52, 18)

@@ -4,6 +4,7 @@ import 'package:rosario/providers/mypatterns.dart';
 import 'package:rosario/screens/edit.dart';
 import 'package:rosario/screens/home.dart';
 import 'package:rosario/screens/select_pattern.dart';
+import 'package:rosario/utils/colors_utils.dart';
 import 'data/database_helper.dart';
 
 final dbHelper = DatabaseHelper();
@@ -28,7 +29,9 @@ class SagradaApp extends ConsumerWidget {
     return MaterialApp(
       title: 'Rosario',
       theme: ThemeData(
-        primarySwatch: Colors.indigo,
+        colorScheme: ColorScheme.fromSwatch(
+            primarySwatch: MaterialColor(0xFF0A3042, colorMap),
+            accentColor: const Color(0xFF64ee85)),
       ),
       initialRoute: HomeScreen.routeName,
       routes: {

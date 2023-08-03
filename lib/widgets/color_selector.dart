@@ -35,6 +35,84 @@ class _ColorSelectorState extends State<ColorSelector> {
     });
   }
 
+  openPicker(color, index) {
+    editColor = color;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Pick a color!'),
+        content: SingleChildScrollView(
+          child: isPaletteDynamic
+              ? ColorPicker(
+                  pickerColor: editColor,
+                  onColorChanged: (c) => setState(() {
+                    editColor = c;
+                  }),
+                  paletteType: PaletteType.hsl,
+                )
+              : BlockPicker(
+                  availableColors: const [
+                      Colors.black,
+                      Colors.white,
+                      Colors.red,
+                      Colors.redAccent,
+                      Colors.pink,
+                      Colors.pinkAccent,
+                      Colors.purple,
+                      Colors.purpleAccent,
+                      Colors.lightBlue,
+                      Colors.lightBlueAccent,
+                      Colors.blue,
+                      Colors.blueAccent,
+                      Colors.indigo,
+                      Colors.indigoAccent,
+                      Colors.green,
+                      Colors.greenAccent,
+                      Colors.lightGreen,
+                      Colors.lightGreenAccent,
+                      Colors.teal,
+                      Colors.tealAccent,
+                      Colors.lime,
+                      Colors.limeAccent,
+                      Colors.yellow,
+                      Colors.yellowAccent,
+                      Colors.orange,
+                      Colors.orangeAccent,
+                      Colors.brown,
+                      Colors.amber,
+                      Colors.amberAccent,
+                      Colors.blueGrey,
+                      Colors.grey,
+                    ],
+                  pickerColor: editColor,
+                  onColorChanged: (c) => setState(() {
+                        editColor = c;
+                      })),
+        ),
+        actions: <Widget>[
+          OutlinedButton(
+            child: const Text('Change Palette'),
+            onPressed: () {
+              setState(() => isPaletteDynamic = !isPaletteDynamic);
+              Navigator.of(context).pop();
+              openPicker(color, index);
+            },
+          ),
+          ElevatedButton(
+            child: const Text('Select Color'),
+            onPressed: () {
+              setState(() => colorsList[index] = editColor);
+              widget.pattern.colors = colorsList;
+              widget.select(editColor);
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool isPaletteDynamic = false;
   Color editColor = Colors.white;
   colorPicker(Color color, int index) {
     Color borderColor = color == widget.selectedColor &&
@@ -65,35 +143,7 @@ class _ColorSelectorState extends State<ColorSelector> {
           SizedBox(
             width: 22,
             child: IconButton(
-                onPressed: () {
-                  editColor = color;
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Pick a color!'),
-                      content: SingleChildScrollView(
-                        child: ColorPicker(
-                          pickerColor: editColor,
-                          onColorChanged: (c) => setState(() {
-                            editColor = c;
-                          }),
-                          paletteType: PaletteType.hslWithLightness,
-                        ),
-                      ),
-                      actions: <Widget>[
-                        ElevatedButton(
-                          child: const Text('Select Color'),
-                          onPressed: () {
-                            setState(() => colorsList[index] = editColor);
-                            widget.pattern.colors = colorsList;
-                            widget.select(editColor);
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                onPressed: () => openPicker(color, index),
                 padding: const EdgeInsets.all(4),
                 splashRadius: 4,
                 icon: const Icon(Icons.arrow_drop_down)),

@@ -32,7 +32,12 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Rosario'),
+        title: Image.asset(
+          'assets/img/rosario-logo.png',
+          width: double.infinity,
+          height: 40,
+          fit: BoxFit.fitHeight,
+        ),
       ),
       body: SafeArea(
           child: Padding(

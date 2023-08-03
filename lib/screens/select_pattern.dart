@@ -31,7 +31,15 @@ class _SelectPatternScreenState extends State<SelectPatternScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Patterns Collection'),
+        title: Padding(
+          padding: const EdgeInsets.only(right: 60.0),
+          child: Image.asset(
+            'assets/img/rosario-logo.png',
+            width: double.infinity,
+            height: 40,
+            fit: BoxFit.fitHeight,
+          ),
+        ),
         bottom: TabBar(
           controller: _tabController,
           tabs: const <Widget>[

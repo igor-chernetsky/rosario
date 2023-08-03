@@ -37,7 +37,7 @@ class PatternPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.drawPaint(Paint()..color = Colors.grey);
+    canvas.drawPaint(Paint()..color = Colors.transparent);
     if (isEditing) {
       final backPaint = Paint()..color = color;
       canvas.drawRect(

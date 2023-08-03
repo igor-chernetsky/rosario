@@ -49,6 +49,8 @@ Future<List<BeadsPattern>> getSavedPatters() async {
     readJsonFile('assets/patterns/watermelone_popsicle.json'),
     readJsonFile('assets/patterns/raphael_tmnt.json'),
     readJsonFile('assets/patterns/skull.json'),
+    readJsonFile('assets/patterns/batman.json'),
+    readJsonFile('assets/patterns/elsa.json'),
   ]);
 
   return cornflower;
