@@ -99,7 +99,9 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
                   .pushChanges(widget.pattern.matrix!);
             }
             setState(() {
-              widget.pattern.matrix![y][x] = selectedColor;
+              if (widget.pattern.matrix != null) {
+                widget.pattern.matrix![y][x] = selectedColor;
+              }
             });
             return;
           }
@@ -369,10 +371,10 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
                       : () => zoom(-1),
                   icon: const Icon(Icons.zoom_out),
                 ),
-                if (widget.export != null)
-                  IconButton(
-                      onPressed: () => widget.export!(context, widget.pattern),
-                      icon: const Icon(Icons.ios_share))
+                // if (widget.export != null)
+                //   IconButton(
+                //       onPressed: () => widget.export!(context, widget.pattern),
+                //       icon: const Icon(Icons.ios_share))
               ],
             )
           ],

@@ -43,13 +43,12 @@ class _EditPatternScreenState extends ConsumerState<EditPatternScreen> {
   }
 
   savePattern(BuildContext context, BeadsPattern pattern) {
-    if (pattern.name != null && pattern.name != '') {
-      ref.read(myPatternsProvider.notifier).addPattern(pattern);
-      return;
-    }
     showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext context) {
+        if (pattern.name != null) {
+          nameController.text = pattern.name!;
+        }
         return SingleChildScrollView(
           child: Container(
             padding: EdgeInsets.only(

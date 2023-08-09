@@ -94,6 +94,9 @@ flutter:
     - assets/img/Raphael TMNT.png
     - assets/img/Watermelone popsicle.png
     - assets/img/GrayRed pattern.png
+    - assets/img/Pink leaves.png
+    - assets/img/Black Red Angle.png
+    - assets/img/Black drop.png
     - assets/img/rosario-logo.png
     - assets/patterns/cornflower.json
     - assets/patterns/blue_flower.json
@@ -111,6 +114,9 @@ flutter:
     - assets/patterns/raphael_tmnt.json
     - assets/patterns/gray_red_pattern.json
     - assets/patterns/mint_chocolate.json
+    - assets/patterns/pink_leaves.json
+    - assets/patterns/black_red_angle.json
+    - assets/patterns/black_drop.json
     - assets/patterns/watermelone_popsicle.json
 
 
