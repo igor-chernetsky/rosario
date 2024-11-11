@@ -8,13 +8,11 @@ Future<BeadsPattern> readJsonFile(String filePath) async {
   var input = await rootBundle.loadString(filePath);
   var map = jsonDecode(input);
   List<List<Color?>> matrix = [];
-  (map['matrix'] as List<dynamic>).forEach(
-    (element) {
-      matrix.add((element as List<dynamic>)
-          .map((e) => e == null ? null : Color(int.parse(e)))
-          .toList());
-    },
-  );
+  for (var element in (map['matrix'] as List<dynamic>)) {
+    matrix.add((element as List<dynamic>)
+        .map((e) => e == null ? null : Color(int.parse(e)))
+        .toList());
+  }
   return BeadsPattern(
       height: map['height'],
       width: map['width'],
@@ -34,6 +32,11 @@ Future<List<BeadsPattern>> getSavedPatters() async {
   }
 
   final cornflower = await Future.wait([
+    readJsonFile('assets/patterns/christmass_ball.json'),
+    readJsonFile('assets/patterns/champagne.json'),
+    readJsonFile('assets/patterns/harry_potter.json'),
+    readJsonFile('assets/patterns/owl.json'),
+    readJsonFile('assets/patterns/snowman.json'),
     readJsonFile('assets/patterns/abyss.json'),
     readJsonFile('assets/patterns/pink_leaves.json'),
     readJsonFile('assets/patterns/caramel.json'),

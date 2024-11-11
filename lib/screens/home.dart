@@ -10,9 +10,45 @@ class HomeScreen extends ConsumerWidget {
   static String routeName = '/mypatterns';
   const HomeScreen({super.key});
 
-  getEmptyState() {
-    return const Center(
-      child: Text('No Patterns Found'),
+  getEmptyState(BuildContext context) {
+    return Center(
+      child: Container(
+        height: 160,
+        padding: const EdgeInsets.all(24),
+        color: const Color(0xFF0A3042),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  height: 40.0,
+                  'assets/img/rosario.png',
+                ),
+                const SizedBox(
+                  width: 20,
+                ),
+                const Text(
+                  'NO PATTERNS FOUND',
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600),
+                )
+              ],
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.add),
+              label: const Text('ADD PATTERN'),
+              onPressed: () => Navigator.of(context)
+                  .pushNamed(SelectPatternScreen.routeName),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -43,18 +79,24 @@ class HomeScreen extends ConsumerWidget {
           child: Padding(
               padding: const EdgeInsets.all(8),
               child: myPatterns.isEmpty
-                  ? getEmptyState()
+                  ? getEmptyState(context)
                   : ListView.builder(
                       itemBuilder: (ctx, index) => Column(
                         children: [
                           ListTile(
-                            title: Text(myPatterns[index].name ?? ''),
+                            title: Text(
+                              myPatterns[index].name ?? '',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 20,
+                                  color: Theme.of(context).primaryColor),
+                            ),
                             subtitle: Text(
                               myPatterns[index].patternId,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium!
-                                  .copyWith(color: Colors.grey),
+                                  .copyWith(color: Colors.white),
                             ),
                             onTap: () => Navigator.of(context).pushNamed(
                                 EditPatternScreen.routeName,

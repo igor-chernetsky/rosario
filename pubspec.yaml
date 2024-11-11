@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.1.0+11
+version: 1.1.0+13
 
 environment:
   sdk: '>=2.19.3 <3.0.0'
@@ -42,6 +42,7 @@ dependencies:
   path: ^1.8.2
   confirm_dialog: ^1.0.1
   flutter_colorpicker: ^1.0.3
+  flutter_native_splash: ^2.4.1
 
 dev_dependencies:
   flutter_launcher_icons: "^0.13.1"
@@ -68,56 +69,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/img/Brick Stitch.png
-    - assets/img/2nd Brick Stitch.png
-    - assets/img/3rd Brick Stitch.png
-    - assets/img/Square Stitch.png
-    - assets/img/Peyote Stitch.png
-    - assets/img/2nd Peyote Stitch.png
-    - assets/img/3rd Peyote Stitch.png
-    - assets/img/Netting Stitch.png
-    - assets/img/Autumn river.png
-    - assets/img/Mint chocolate.png
-    - assets/img/bg1.png
-    - assets/img/Fox.png
-    - assets/img/Batman.png
-    - assets/img/Elsa.png
-    - assets/img/Abyss.png
-    - assets/img/Minion.png
-    - assets/img/Cat.png
-    - assets/img/Skull.png
-    - assets/img/Caramel.png
-    - assets/img/Mermaid.png
-    - assets/img/Cornflower.png
-    - assets/img/Blue Flower.png
-    - assets/img/Siamese cat.png
-    - assets/img/Raphael TMNT.png
-    - assets/img/Watermelone popsicle.png
-    - assets/img/GrayRed pattern.png
-    - assets/img/Pink leaves.png
-    - assets/img/Black Red Angle.png
-    - assets/img/Black drop.png
-    - assets/img/rosario-logo.png
-    - assets/patterns/cornflower.json
-    - assets/patterns/blue_flower.json
-    - assets/patterns/autumn_river.json
-    - assets/patterns/fox.json
-    - assets/patterns/batman.json
-    - assets/patterns/elsa.json
-    - assets/patterns/skull.json
-    - assets/patterns/abyss.json
-    - assets/patterns/minion.json
-    - assets/patterns/cat.json
-    - assets/patterns/mermaid.json
-    - assets/patterns/caramel.json
-    - assets/patterns/siamese_cat.json
-    - assets/patterns/raphael_tmnt.json
-    - assets/patterns/gray_red_pattern.json
-    - assets/patterns/mint_chocolate.json
-    - assets/patterns/pink_leaves.json
-    - assets/patterns/black_red_angle.json
-    - assets/patterns/black_drop.json
-    - assets/patterns/watermelone_popsicle.json
+    - assets/img/
+    - assets/patterns/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -110,6 +110,21 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
     }
   }
 
+  changeColor(Color color, Color newColor) {
+    ref.read(historyProvider.notifier).pushChanges(widget.pattern.matrix!);
+    setState(() {
+      for (int y = 0; y < widget.pattern.matrix!.length; y++) {
+        var element = widget.pattern.matrix![y];
+        for (int x = 0; x < element.length; x++) {
+          if (widget.pattern.matrix != null &&
+              widget.pattern.matrix![y][x] == color) {
+            widget.pattern.matrix![y][x] = newColor;
+          }
+        }
+      }
+    });
+  }
+
   paintAll() {
     ref.read(historyProvider.notifier).pushChanges(widget.pattern.matrix!);
     setState(() {

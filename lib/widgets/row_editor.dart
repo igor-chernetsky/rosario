@@ -89,7 +89,7 @@ class _RowEditorState extends State<RowEditor> {
         }
       } else {
         widget.pattern.height += widget.pattern.ydelta;
-        List<Color> row = [];
+        List<Color?> row = [];
         for (var x = 0; x < widget.pattern.width; x++) {
           row.add(Colors.white);
         }

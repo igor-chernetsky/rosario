@@ -48,13 +48,9 @@ class BeadsPattern {
         'patternId': patternId,
         'width': width,
         'height': height,
-        'colors': colors != null
-            ? colors!.map((col) => col.value.toString()).toList()
-            : null,
-        'matrix': matrix != null
-            ? matrix!
-                .map((e) => e.map((col) => col?.value.toString()).toList())
-                .toList()
-            : null
+        'colors': colors?.map((col) => col.value.toString()).toList(),
+        'matrix': matrix
+            ?.map((e) => e.map((col) => col?.value.toString()).toList())
+            .toList()
       };
 }

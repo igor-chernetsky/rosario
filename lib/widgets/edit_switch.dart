@@ -13,12 +13,12 @@ class EditSwitch extends StatelessWidget {
       child: FittedBox(
         fit: BoxFit.fill,
         child: Switch(
-            thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
-                (Set<MaterialState> states) {
+            thumbIcon: WidgetStateProperty.resolveWith<Icon?>(
+                (Set<WidgetState> states) {
               return isEditing
                   ? const Icon(
                       Icons.visibility,
-                      color: Colors.white,
+                      color: Colors.teal,
                     )
                   : const Icon(
                       Icons.edit,

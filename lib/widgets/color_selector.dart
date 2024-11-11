@@ -101,7 +101,19 @@ class _ColorSelectorState extends State<ColorSelector> {
           ElevatedButton(
             child: const Text('Select Color'),
             onPressed: () {
-              setState(() => colorsList[index] = editColor);
+              setState(() {
+                Color oldColor = colorsList[index];
+                colorsList[index] = editColor;
+                for (int y = 0; y < widget.pattern.matrix!.length; y++) {
+                  var element = widget.pattern.matrix![y];
+                  for (int x = 0; x < element.length; x++) {
+                    if (widget.pattern.matrix != null &&
+                        widget.pattern.matrix![y][x] == oldColor) {
+                      widget.pattern.matrix![y][x] = editColor;
+                    }
+                  }
+                }
+              });
               widget.pattern.colors = colorsList;
               widget.select(editColor);
               Navigator.of(context).pop();
@@ -162,9 +174,10 @@ class _ColorSelectorState extends State<ColorSelector> {
     for (var index = 0; index < colorsList.length; index++) {
       colorWidgets.add(colorPicker(colorsList[index], index));
     }
-    if (colorsList.length < 9)
+    if (colorsList.length < 9) {
       colorWidgets.add(
           IconButton(onPressed: addColor, icon: const Icon(Icons.plus_one)));
+    }
     return Column(children: colorWidgets);
   }
 }
