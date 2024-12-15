@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosario/providers/mypatterns.dart';
 import 'package:rosario/screens/edit.dart';
 import 'package:rosario/screens/home.dart';
+import 'package:rosario/screens/image_import.dart';
 import 'package:rosario/screens/select_pattern.dart';
 import 'package:rosario/utils/colors_utils.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -46,7 +47,8 @@ class SagradaApp extends ConsumerWidget {
       routes: {
         HomeScreen.routeName: (context) => const HomeScreen(),
         SelectPatternScreen.routeName: (context) => const SelectPatternScreen(),
-        EditPatternScreen.routeName: (context) => const EditPatternScreen()
+        EditPatternScreen.routeName: (context) => const EditPatternScreen(),
+        ImageImport.routeName: (context) => const ImageImport(),
       },
     );
   }

@@ -60,7 +60,7 @@ class PatternPainter extends CustomPainter {
           drawText((y + 1).toString(), 2,
               y * pattern.radius + pattern.radius + 11, canvas);
         }
-        final c = getOffset(x, y, pattern);
+        final c = getOffset(x, y, pattern, false);
         if (pattern.matrix?[y][x] != null && c != null) {
           final paint = Paint()..color = pattern.matrix?[y][x] ?? Colors.white;
           canvas.drawCircle(c, 9, paint);

@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosario/widgets/color_selector.dart';
 import 'package:rosario/widgets/patternn_painter.dart';
 import 'package:rosario/widgets/row_editor.dart';
+import 'package:rosario/widgets/screenshotButton.dart';
+import 'package:screenshot/screenshot.dart';
 
 import '../data/saved_patterns.dart';
 import '../models/pattern.dart';
@@ -27,6 +29,7 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
   bool isEditing = false;
   int rotation = 0;
   bool canRefresh = false;
+  ScreenshotController screenshotController = ScreenshotController();
   final TransformationController _transformationController =
       TransformationController();
 
@@ -89,7 +92,7 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
           return;
         }
 
-        Offset? c = getOffset(x, y, widget.pattern);
+        Offset? c = getOffset(x, y, widget.pattern, false);
         if (c != null) {
           path.addRect(Rect.fromCircle(center: c, radius: r / 2));
           if (path.contains(localClick)) {
@@ -162,6 +165,14 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
       moveble = true;
       _transformationController.value = matrix4;
     });
+  }
+
+  zoomOut() {
+    if (_transformationController.value.row0[0] == 1) {
+      return;
+    }
+    zoom(-1);
+    zoomOut();
   }
 
   rotate() {
@@ -318,44 +329,46 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
           height: double.infinity,
           color: Colors.blueGrey,
         ),
-        Container(
-          width: double.infinity,
-          decoration: const BoxDecoration(
-              image: DecorationImage(
-                  opacity: 0.6,
-                  image: AssetImage("assets/img/bg1.png"),
-                  repeat: ImageRepeat.repeat)),
-          height: double.infinity,
-          padding: isEditing
-              ? const EdgeInsets.fromLTRB(12, 58, 52, 18)
-              : const EdgeInsets.fromLTRB(12, 58, 20, 18),
-          child: FittedBox(
-            child: Listener(
-                onPointerDown: isEditing ? onCanvasClick : null,
-                onPointerMove: isEditing ? onCanvasClick : null,
-                child: RotatedBox(
-                  quarterTurns: rotation,
-                  child: SizedBox(
-                    width: canvasWidth,
-                    height: canvasHeight,
-                    child: InteractiveViewer(
-                      transformationController: _transformationController,
-                      scaleEnabled: false,
-                      panEnabled: moveble,
-                      child: CustomPaint(
-                        key: canvasKey,
-                        painter: PatternPainter(
-                            rotation: rotation,
-                            pattern: widget.pattern,
-                            color: selectedColor ?? Colors.transparent,
-                            isEditing: isEditing),
-                        child: Container(),
+        Screenshot(
+            controller: screenshotController,
+            child: Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                  image: DecorationImage(
+                      opacity: 0.6,
+                      image: AssetImage("assets/img/bg1.png"),
+                      repeat: ImageRepeat.repeat)),
+              height: double.infinity,
+              padding: isEditing
+                  ? const EdgeInsets.fromLTRB(12, 58, 52, 18)
+                  : const EdgeInsets.fromLTRB(12, 58, 20, 18),
+              child: FittedBox(
+                child: Listener(
+                    onPointerDown: isEditing ? onCanvasClick : null,
+                    onPointerMove: isEditing ? onCanvasClick : null,
+                    child: RotatedBox(
+                      quarterTurns: rotation,
+                      child: SizedBox(
+                        width: canvasWidth,
+                        height: canvasHeight,
+                        child: InteractiveViewer(
+                          transformationController: _transformationController,
+                          scaleEnabled: false,
+                          panEnabled: moveble,
+                          child: CustomPaint(
+                            key: canvasKey,
+                            painter: PatternPainter(
+                                rotation: rotation,
+                                pattern: widget.pattern,
+                                color: selectedColor ?? Colors.transparent,
+                                isEditing: isEditing),
+                            child: Container(),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                )),
-          ),
-        ),
+                    )),
+              ),
+            )),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -386,6 +399,10 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
                       : () => zoom(-1),
                   icon: const Icon(Icons.zoom_out),
                 ),
+                if (!isEditing)
+                  ScreenshotButton(
+                      screenshotController: screenshotController,
+                      zoomOut: zoomOut),
                 // if (widget.export != null)
                 //   IconButton(
                 //       onPressed: () => widget.export!(context, widget.pattern),

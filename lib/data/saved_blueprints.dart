@@ -1,18 +1,20 @@
 import '../models/pattern.dart';
 
 Map<String, Function> xrules = {
-  "Brick Stitch": (int x, int y, BeadsPattern pattern) {
+  "Brick Stitch": (int x, int y, BeadsPattern pattern, bool noOffset) {
     double radius = pattern.radius;
-    double result = x * radius + (y.isEven ? 2 * radius : radius * 2.5);
+    double mult = noOffset ? 0.5 : 2;
+    double result =
+        x * radius + (y.isEven ? mult * radius : radius * (mult + 0.5));
     return result;
   },
-  "2nd Brick Stitch": (int x, int y, BeadsPattern pattern) {
+  "2nd Brick Stitch": (int x, int y, BeadsPattern pattern, bool noOffset) {
     double radius = pattern.radius;
     double result = x * radius +
         (((y + 1) % 4 == 3 || (y + 1) % 4 == 0) ? 2 * radius : radius * 2.5);
     return result;
   },
-  "3rd Brick Stitch": (int x, int y, BeadsPattern pattern) {
+  "3rd Brick Stitch": (int x, int y, BeadsPattern pattern, bool noOffset) {
     double radius = pattern.radius;
     double result = x * radius +
         (((y + 1) % 6 == 5 || (y + 1) % 6 == 4 || (y + 1) % 6 == 0)
@@ -20,7 +22,7 @@ Map<String, Function> xrules = {
             : radius * 2.5);
     return result;
   },
-  "Netting Stitch": (int x, int y, BeadsPattern pattern) {
+  "Netting Stitch": (int x, int y, BeadsPattern pattern, bool noOffset) {
     double radius = pattern.radius;
     double result = x * radius + (y.isEven ? 2 * radius : radius * 2.5);
     return result;
@@ -28,18 +30,20 @@ Map<String, Function> xrules = {
 };
 
 Map<String, Function> yrules = {
-  "Peyote Stitch": (int x, int y, BeadsPattern pattern) {
+  "Peyote Stitch": (int x, int y, BeadsPattern pattern, bool noOffset) {
     double radius = pattern.radius;
-    double result = y * radius + (x.isEven ? 2 * radius : radius * 2.5);
+    double mult = noOffset ? 0.3 : 2;
+    double result =
+        y * radius + (x.isEven ? mult * radius : radius * (mult + 0.5));
     return result;
   },
-  "2nd Peyote Stitch": (int x, int y, BeadsPattern pattern) {
+  "2nd Peyote Stitch": (int x, int y, BeadsPattern pattern, bool noOffset) {
     double radius = pattern.radius;
     double result = y * radius +
         (((x + 1) % 4 == 3 || (x + 1) % 4 == 0) ? 2 * radius : radius * 2.5);
     return result;
   },
-  "3rd Peyote Stitch": (int x, int y, BeadsPattern pattern) {
+  "3rd Peyote Stitch": (int x, int y, BeadsPattern pattern, bool noOffset) {
     double radius = pattern.radius;
     double result = y * radius +
         (((x + 1) % 6 == 5 || (x + 1) % 6 == 4 || (x + 1) % 6 == 0)
@@ -47,7 +51,7 @@ Map<String, Function> yrules = {
             : radius * 2.5);
     return result;
   },
-  "Netting Stitch": (int x, int y, BeadsPattern pattern) {
+  "Netting Stitch": (int x, int y, BeadsPattern pattern, bool noOffset) {
     double radius = pattern.radius;
     if (((y + 2) % 4 == 0 && (x + 2) % 2 != 0) ||
         (y % 4 == 0 && x.isEven) ||
