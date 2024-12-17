@@ -92,17 +92,17 @@ class DatabaseHelper {
     var data = await _db.query(table);
     var result = data.map((element) {
       var matrix = stringToMatrix(element[columnMatrix] as String);
-      var colors = (element[columnColors] == '')
+      List<Color> colors = (element[columnColors] == '')
           ? []
           : stringToColors(element[columnColors] as String);
       return BeadsPattern(
           id: element[columnId] as String,
           name: element[columnName] as String,
           patternId: element[columnPatternId] as String,
-          height: 2,
-          width: 2,
-          colors: [],
-          matrix: []);
+          height: matrix.length,
+          width: matrix[0].length,
+          colors: colors,
+          matrix: matrix);
     }).toList();
     return result;
   }

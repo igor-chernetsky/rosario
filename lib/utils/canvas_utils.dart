@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/saved_blueprints.dart';
 import '../models/pattern.dart';
 
-getOffset(int x, int y, BeadsPattern pattern, bool? noOffset) {
+Offset? getOffset(int x, int y, BeadsPattern pattern, bool? noOffset) {
   double startOffset =
       noOffset == true ? pattern.radius / 2 : 2 * pattern.radius;
   double? xCoord = xrules[pattern.patternId] == null

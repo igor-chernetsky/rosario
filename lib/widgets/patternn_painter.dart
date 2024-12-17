@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rosario/utils/colors_utils.dart';
 
 import '../models/pattern.dart';
 import '../utils/canvas_utils.dart';
@@ -7,21 +8,24 @@ class PatternPainter extends CustomPainter {
   BeadsPattern pattern;
   Color color;
   bool isEditing;
+  bool showNumbers;
   int rotation;
 
   PatternPainter(
       {required this.pattern,
       required this.color,
       required this.isEditing,
+      required this.showNumbers,
       required this.rotation});
 
-  drawText(String text, double x, double y, Canvas canvas) {
+  drawText(String text, double x, double y, Canvas canvas, TextStyle? style) {
+    bool isDark = getColorLight(color) < 400;
     final textSpan = TextSpan(
       text: text,
-      style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color:
-              isEditing && color == Colors.black ? Colors.white : Colors.black),
+      style: style ??
+          TextStyle(
+              fontWeight: FontWeight.bold,
+              color: isEditing && isDark ? Colors.white : Colors.black),
     );
     final textPainter = TextPainter(
         text: textSpan,
@@ -33,6 +37,24 @@ class PatternPainter extends CustomPainter {
       maxWidth: 30,
     );
     textPainter.paint(canvas, offset);
+  }
+
+  drawCircleText(int x, int y, Offset c, Canvas canvas, double tripRadius,
+      double halfRadius) {
+    if (!showNumbers) {
+      return;
+    }
+    bool isDark = getColorLight(pattern.matrix?[y][x] ?? Colors.white) < 400;
+    drawText(
+        '${x + 1}\n${y + 1}',
+        c.dx - tripRadius,
+        c.dy - halfRadius,
+        canvas,
+        TextStyle(
+            fontWeight: FontWeight.bold,
+            height: 01,
+            fontSize: 9,
+            color: isDark ? Colors.white : Colors.black));
   }
 
   @override
@@ -54,16 +76,19 @@ class PatternPainter extends CustomPainter {
     }
     for (int x = 0; x < pattern.width; x++) {
       drawText((x + 1).toString(), x * pattern.radius + pattern.radius + 15, 0,
-          canvas);
+          canvas, null);
       for (int y = 0; y < pattern.height; y++) {
         if (x == 0) {
           drawText((y + 1).toString(), 2,
-              y * pattern.radius + pattern.radius + 11, canvas);
+              y * pattern.radius + pattern.radius + 11, canvas, null);
         }
         final c = getOffset(x, y, pattern, false);
+        double halfRadius = pattern.radius / 2.5;
+        double tripRadius = pattern.radius / 3.5;
         if (pattern.matrix?[y][x] != null && c != null) {
           final paint = Paint()..color = pattern.matrix?[y][x] ?? Colors.white;
           canvas.drawCircle(c, 9, paint);
+          drawCircleText(x, y, c, canvas, tripRadius, halfRadius);
         }
       }
     }

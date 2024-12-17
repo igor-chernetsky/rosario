@@ -24,3 +24,7 @@ Map<int, Color> colorSecondaryMap = {
   800: const Color(0xCC64ee85),
   900: const Color(0xFF64ee85),
 };
+
+int getColorLight(Color color) {
+  return (color.red + color.green + color.blue);
+}

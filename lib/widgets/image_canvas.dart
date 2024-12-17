@@ -22,8 +22,7 @@ class _ImageCanvasState extends ConsumerState<ImageCanvas> {
   final nameController = TextEditingController();
   @override
   void initState() {
-    var decodedImage =
-        decodeImageFromList(widget.file.readAsBytesSync()).then((res) {
+    decodeImageFromList(widget.file.readAsBytesSync()).then((res) {
       double radius = MediaQuery.sizeOf(context).width / (2 * res.width);
       setState(() {
         widget.details =
@@ -277,7 +276,9 @@ class TemplatePainter extends CustomPainter {
                   patternId: details!.patternId,
                   radius: details!.radius * 2),
               true);
-          canvas.drawCircle(c, details!.radius, paint);
+          if (c != null) {
+            canvas.drawCircle(c, details!.radius, paint);
+          }
         }
       }
     }

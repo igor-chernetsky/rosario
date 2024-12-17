@@ -50,21 +50,21 @@ int colorCompare(Color c1, Color c2) {
   return c1amount > c2amount ? 1 : -1;
 }
 
+int getColorDelta(Color c1, Color c2) {
+  return (c1.blue - c2.blue).abs() +
+      (c1.red - c2.red).abs() +
+      (c1.green - c2.green).abs();
+}
+
 List<Color>? findLessDifferent(List<Color> colors) {
-  int minDelta = (colors[0].blue - colors[1].blue).abs() +
-      (colors[0].red - colors[1].red).abs() +
-      (colors[0].green - colors[1].green).abs();
+  int minDelta = getColorDelta(colors[0], colors[1]);
   List<Color> result = [colors[0], colors[1]];
   for (int i = 1; i < colors.length - 1; i++) {
-    int delta = (colors[i].blue - colors[i + 1].blue).abs() +
-        (colors[i].red - colors[i + 1].red).abs() +
-        (colors[i].green - colors[i + 1].green).abs();
+    int delta = getColorDelta(colors[i], colors[i + 1]);
     if (delta < minDelta) {
+      minDelta = delta;
       result = [colors[i], colors[i + 1]];
     }
-  }
-  if (minDelta > 120) {
-    return null;
   }
   return result;
 }
@@ -90,12 +90,6 @@ getAvarageColor(fimg.Image bitmap, int sx, int sy, int size) {
   int gf = green ~/ count;
   int bf = blue ~/ count;
   return Color.fromRGBO(rf, gf, bf, 1);
-}
-
-getColorDifference(Color c1, Color c2) {
-  int c1amount = 256 * 256 * c1.red + 256 * c1.blue + c1.green;
-  int c2amount = 256 * 256 * c2.red + 256 * c2.blue + c2.green;
-  return (c1amount - c2amount).abs();
 }
 
 BeadsPattern breakImage(
@@ -137,7 +131,11 @@ BeadsPattern breakImage(
         Color? avrgColor =
             getAvarageColor(bitmap, ix.floor(), iy.floor(), imgRad.floor());
         column.add(avrgColor);
-        if (avrgColor != null && !usedColors.contains(avrgColor)) {
+        if (avrgColor != null &&
+            !usedColors.contains(avrgColor) &&
+            usedColors.where((e) {
+              return getColorDelta(e, avrgColor) < 100;
+            }).isEmpty) {
           usedColors.add(avrgColor);
         }
       }
@@ -145,9 +143,8 @@ BeadsPattern breakImage(
     }
 
     usedColors.sort(colorCompare);
-    int attempts = details.horizontal * 100;
 
-    while (usedColors.length > 10 && attempts-- > 0) {
+    while (usedColors.length > 10) {
       List<Color>? replacement = findLessDifferent(usedColors);
       if (replacement != null) {
         usedColors.remove(replacement[0]);

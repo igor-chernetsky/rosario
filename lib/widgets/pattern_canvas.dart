@@ -27,6 +27,7 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
   Color? selectedColor;
   bool moveble = true;
   bool isEditing = false;
+  bool showNumber = false;
   int rotation = 0;
   bool canRefresh = false;
   ScreenshotController screenshotController = ScreenshotController();
@@ -360,6 +361,7 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
                             painter: PatternPainter(
                                 rotation: rotation,
                                 pattern: widget.pattern,
+                                showNumbers: showNumber,
                                 color: selectedColor ?? Colors.transparent,
                                 isEditing: isEditing),
                             child: Container(),
@@ -385,6 +387,16 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
+                  onPressed: () {
+                    setState(() {
+                      showNumber = !showNumber;
+                    });
+                  },
+                  icon: const Icon(Icons.onetwothree),
+                  iconSize: 34,
+                  color: showNumber ? Colors.red : Colors.black,
+                ),
+                IconButton(
                     onPressed: rotate,
                     icon: const Icon(Icons.rotate_90_degrees_ccw)),
                 IconButton(
@@ -403,10 +415,6 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
                   ScreenshotButton(
                       screenshotController: screenshotController,
                       zoomOut: zoomOut),
-                // if (widget.export != null)
-                //   IconButton(
-                //       onPressed: () => widget.export!(context, widget.pattern),
-                //       icon: const Icon(Icons.ios_share))
               ],
             )
           ],
