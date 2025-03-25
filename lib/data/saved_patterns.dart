@@ -32,6 +32,8 @@ Future<List<BeadsPattern>> getSavedPatters() async {
   }
 
   final cornflower = await Future.wait([
+    readJsonFile('assets/patterns/pansies.json'),
+    readJsonFile('assets/patterns/snowflake.json'),
     readJsonFile('assets/patterns/christmass_ball.json'),
     readJsonFile('assets/patterns/champagne.json'),
     readJsonFile('assets/patterns/harry_potter.json'),

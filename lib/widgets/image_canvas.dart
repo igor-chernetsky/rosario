@@ -10,8 +10,8 @@ import 'package:rosario/utils/img_utils.dart';
 class ImageCanvas extends ConsumerStatefulWidget {
   final GlobalKey canvasKey = GlobalKey();
   File file;
-  BeadsPattern? pattern = null;
-  ImageBreakDetails? details = null;
+  BeadsPattern? pattern;
+  ImageBreakDetails? details;
   ImageCanvas({super.key, required this.file});
 
   @override
@@ -115,79 +115,112 @@ class _ImageCanvasState extends ConsumerState<ImageCanvas> {
     }
     if (widget.pattern == null) {
       return [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        widget.details!.patternId == 'Square Stitch'
-                            ? Theme.of(context).focusColor
-                            : Theme.of(context).cardColor),
-                onPressed: () {
-                  changePattern('Square Stitch');
-                },
-                child: const Text('Square')),
-            ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: widget.details!.patternId == 'Brick Stitch'
-                        ? Theme.of(context).focusColor
-                        : Theme.of(context).cardColor),
-                onPressed: () {
-                  changePattern('Brick Stitch');
-                },
-                child: const Text('Brick')),
-            ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        widget.details!.patternId == 'Peyote Stitch'
-                            ? Theme.of(context).focusColor
-                            : Theme.of(context).cardColor),
-                onPressed: () {
-                  changePattern('Peyote Stitch');
-                },
-                child: const Text('Peyote')),
-          ],
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          widget.details!.patternId == 'Square Stitch'
+                              ? Theme.of(context).primaryColor
+                              : Theme.of(context).cardColor),
+                  onPressed: () {
+                    changePattern('Square Stitch');
+                  },
+                  child: Text('Square',
+                      style: TextStyle(
+                          color: widget.details!.patternId == 'Square Stitch'
+                              ? Colors.white
+                              : Theme.of(context).primaryColor))),
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          widget.details!.patternId == 'Brick Stitch'
+                              ? Theme.of(context).primaryColor
+                              : Theme.of(context).cardColor),
+                  onPressed: () {
+                    changePattern('Brick Stitch');
+                  },
+                  child: Text(
+                    'Brick',
+                    style: TextStyle(
+                        color: widget.details!.patternId == 'Brick Stitch'
+                            ? Colors.white
+                            : Theme.of(context).primaryColor),
+                  )),
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          widget.details!.patternId == 'Peyote Stitch'
+                              ? Theme.of(context).primaryColor
+                              : Theme.of(context).cardColor),
+                  onPressed: () {
+                    changePattern('Peyote Stitch');
+                  },
+                  child: Text('Peyote',
+                      style: TextStyle(
+                          color: widget.details!.patternId == 'Peyote Stitch'
+                              ? Colors.white
+                              : Theme.of(context).primaryColor))),
+            ],
+          ),
         ),
         const SizedBox(
           height: 10,
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            ElevatedButton.icon(
-              onPressed:
-                  widget.details != null && widget.details!.horizontal > 5
-                      ? () => {
-                            setState(() {
-                              widget.details = widget.details!.change(-1);
-                            })
-                          }
-                      : null,
-              icon: const Icon(Icons.arrow_downward_outlined),
-              label: const Text('Less Beads'),
-            ),
-            ElevatedButton.icon(
-              onPressed:
-                  widget.details != null && widget.details!.horizontal < 50
-                      ? () => {
-                            setState(() {
-                              widget.details = widget.details!.change(1);
-                            })
-                          }
-                      : null,
-              icon: const Icon(Icons.arrow_upward_outlined),
-              label: const Text('More Beads'),
-            ),
-          ],
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton.icon(
+                onPressed:
+                    widget.details != null && widget.details!.horizontal > 5
+                        ? () => {
+                              setState(() {
+                                widget.details = widget.details!.change(-1);
+                              })
+                            }
+                        : null,
+                icon: const Icon(Icons.arrow_downward_outlined),
+                label: const Text('Less Beads'),
+              ),
+              ElevatedButton.icon(
+                onPressed:
+                    widget.details != null && widget.details!.horizontal < 50
+                        ? () => {
+                              setState(() {
+                                widget.details = widget.details!.change(1);
+                              })
+                            }
+                        : null,
+                icon: const Icon(Icons.arrow_upward_outlined),
+                label: const Text('More Beads'),
+              ),
+            ],
+          ),
         ),
         const SizedBox(
           height: 10,
         ),
-        ElevatedButton.icon(
-          onPressed: widget.details != null ? () => {updatePattern()} : null,
-          icon: const Icon(Icons.settings),
-          label: const Text('Make The Pattern'),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: widget.details != null ? () => {updatePattern()} : null,
+            icon: const Icon(
+              Icons.settings,
+              color: Colors.white,
+            ),
+            label: const Text(
+              'Make The Pattern',
+              style: TextStyle(color: Colors.white),
+            ),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor),
+          ),
         )
       ];
     }
@@ -218,14 +251,14 @@ class _ImageCanvasState extends ConsumerState<ImageCanvas> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(
+        SingleChildScrollView(
           child: Column(
             children: [
               CustomPaint(
                 key: widget.canvasKey,
                 painter: TemplatePainter(
                     details: widget.details, pattern: widget.pattern),
-                child: Container(
+                child: SizedBox(
                   width: double.infinity,
                   child: Image.file(
                     opacity: AlwaysStoppedAnimation(
@@ -265,7 +298,7 @@ class TemplatePainter extends CustomPainter {
           final paint = pattern == null ||
                   pattern?.matrix == null ||
                   pattern!.matrix![y][x] == null
-              ? (Paint()..color = const Color.fromRGBO(255, 255, 255, 0.3))
+              ? (Paint()..color = const Color.fromRGBO(255, 255, 255, 0.9))
               : (Paint()..color = pattern!.matrix![y][x]!);
           final c = getOffset(
               x,

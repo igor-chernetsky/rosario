@@ -2,7 +2,6 @@ import 'package:confirm_dialog/confirm_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rosario/screens/edit.dart';
-import 'package:rosario/screens/image_import.dart';
 import 'package:rosario/screens/select_pattern.dart';
 
 import '../providers/mypatterns.dart';

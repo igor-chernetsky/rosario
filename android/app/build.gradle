@@ -29,6 +29,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
+    namespace "com.blackcross.sagrada"
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 

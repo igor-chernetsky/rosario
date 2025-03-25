@@ -69,39 +69,29 @@ class _RowEditorState extends State<RowEditor> {
   }
 
   changeColumn(bool isDeduct, bool fromBeginning) {
-    setState(() {
-      if (isDeduct) {
-        widget.pattern.height -= widget.pattern.ydelta;
-        if (fromBeginning) {
-          if (widget.pattern.ydelta > 1) {
-            widget.pattern.matrix!.removeRange(0, widget.pattern.ydelta);
-          } else {
+    for (var i = 0; i < widget.pattern.ydelta; i++) {
+      setState(() {
+        if (isDeduct) {
+          widget.pattern.height -= 1;
+          if (fromBeginning) {
             widget.pattern.matrix!.removeAt(0);
-          }
-        } else {
-          if (widget.pattern.ydelta > 1) {
-            widget.pattern.matrix!.removeRange(
-                widget.pattern.matrix!.length - widget.pattern.ydelta,
-                widget.pattern.matrix!.length);
           } else {
             widget.pattern.matrix!.removeLast();
           }
-        }
-      } else {
-        widget.pattern.height += widget.pattern.ydelta;
-        List<Color?> row = [];
-        for (var x = 0; x < widget.pattern.width; x++) {
-          row.add(Colors.white);
-        }
-        for (var i = 0; i < widget.pattern.ydelta; i++) {
+        } else {
+          widget.pattern.height += 1;
+          List<Color?> row = [];
+          for (var x = 0; x < widget.pattern.width; x++) {
+            row.add(Colors.white);
+          }
           if (fromBeginning) {
             widget.pattern.matrix!.insert(0, row);
           } else {
             widget.pattern.matrix!.add(row);
           }
         }
-      }
-    });
+      });
+    }
     widget.afterChange();
   }
 

@@ -1,6 +1,8 @@
 import 'package:confirm_dialog/confirm_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rosario/widgets/color_list.dart';
 import 'package:rosario/widgets/color_selector.dart';
 import 'package:rosario/widgets/patternn_painter.dart';
 import 'package:rosario/widgets/row_editor.dart';
@@ -103,9 +105,19 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
                   .pushChanges(widget.pattern.matrix!);
             }
             setState(() {
+              if (y > 0) {
+                print(
+                    '${x}-${y - 1}: ${widget.pattern.matrix![y - 1][x]?.toHexString()}');
+              }
               if (widget.pattern.matrix != null) {
                 widget.pattern.matrix![y][x] = selectedColor;
               }
+              if (y > 0) {
+                print(
+                    '${x}-${y - 1}: ${widget.pattern.matrix![y - 1][x]?.toHexString()}');
+              }
+              print(
+                  '${x}-${y}: ${widget.pattern.matrix![y][x]?.toHexString()}');
             });
             return;
           }
@@ -201,6 +213,23 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
         });
       }
     });
+  }
+
+  showColors() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 70),
+              child: ColorList(pattern: widget.pattern),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
   showControls() {
@@ -411,6 +440,10 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
                       : () => zoom(-1),
                   icon: const Icon(Icons.zoom_out),
                 ),
+                if (widget.export != null)
+                  IconButton(
+                      onPressed: () => widget.export!(context, widget.pattern),
+                      icon: const Icon(Icons.ios_share)),
                 if (!isEditing)
                   ScreenshotButton(
                       screenshotController: screenshotController,
@@ -424,6 +457,12 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
             child: showControls(),
+          )
+        else
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: showColors(),
           )
       ],
     );

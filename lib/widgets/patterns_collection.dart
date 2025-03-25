@@ -84,7 +84,7 @@ class _PatternsCollectionState extends State<PatternsCollection> {
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Image.asset(
-                        'assets/img/${item.name}.png',
+                        'assets/img/${item.name?.replaceAll(' ', '')}.png',
                         width: double.infinity,
                         height: 120,
                         fit: BoxFit.fitHeight,

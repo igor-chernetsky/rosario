@@ -1,0 +1,2 @@
+/Users/igorch/Development/flutter_igor/sagrada/rosario/android/app/.cxx/Debug/4n1m5l55/x86/CMakeFiles/edit_cache.dir
+/Users/igorch/Development/flutter_igor/sagrada/rosario/android/app/.cxx/Debug/4n1m5l55/x86/CMakeFiles/rebuild_cache.dir

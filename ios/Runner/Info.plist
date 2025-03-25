@@ -5,15 +5,19 @@
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
-		<string>Sagrada</string>
+		<string>Rosario</string>
 		<key>CFBundleExecutable</key>
 		<string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>Our application needs permission save pattern images into gallery</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Our application needs permission transform images from the gallery into patterns</string>
 		<key>CFBundleName</key>
-		<string>sagrada</string>
+		<string>rosario</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>

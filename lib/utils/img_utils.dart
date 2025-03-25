@@ -47,6 +47,9 @@ getImgSizing(int width, int height, int amount, double module, patternId) {
 int colorCompare(Color c1, Color c2) {
   int c1amount = 256 * 256 * c1.red + 256 * c1.blue + c1.green;
   int c2amount = 256 * 256 * c2.red + 256 * c2.blue + c2.green;
+  if (c1amount == c2amount) {
+    return 0;
+  }
   return c1amount > c2amount ? 1 : -1;
 }
 
@@ -130,21 +133,26 @@ BeadsPattern breakImage(
                 true);
         Color? avrgColor =
             getAvarageColor(bitmap, ix.floor(), iy.floor(), imgRad.floor());
-        column.add(avrgColor);
-        if (avrgColor != null &&
-            !usedColors.contains(avrgColor) &&
-            usedColors.where((e) {
-              return getColorDelta(e, avrgColor) < 100;
-            }).isEmpty) {
-          usedColors.add(avrgColor);
+        if (avrgColor != null && !usedColors.contains(avrgColor)) {
+          List<Color> lessDelta = usedColors.where((e) {
+            return getColorDelta(e, avrgColor) < 20;
+          }).toList();
+          lessDelta.sort(colorCompare);
+          if (lessDelta.isEmpty && avrgColor != Colors.black) {
+            column.add(avrgColor);
+            usedColors.add(avrgColor);
+          } else {
+            column.add(lessDelta.last);
+          }
+        } else {
+          column.add(avrgColor);
         }
       }
       matrix.add(column);
     }
 
     usedColors.sort(colorCompare);
-
-    while (usedColors.length > 10) {
+    while (usedColors.length > 12) {
       List<Color>? replacement = findLessDifferent(usedColors);
       if (replacement != null) {
         usedColors.remove(replacement[0]);
@@ -154,6 +162,13 @@ BeadsPattern breakImage(
               matrix[i][j] = replacement[1];
             }
           }
+        }
+      }
+    }
+    for (int i = 0; i < matrix.length; i++) {
+      for (int j = 0; j < matrix[i].length; j++) {
+        if (!usedColors.contains(matrix[i][j])) {
+          print('new color');
         }
       }
     }

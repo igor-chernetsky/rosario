@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:flutter_image_gallery_saver/flutter_image_gallery_saver.dart';
 import 'package:screenshot/screenshot.dart';
 
 class ScreenshotButton extends StatelessWidget {
@@ -15,7 +15,7 @@ class ScreenshotButton extends StatelessWidget {
     Uint8List? image = await screenshotController.capture();
     try {
       if (image != null) {
-        await ImageGallerySaver.saveImage(image);
+        await FlutterImageGallerySaver.saveImage(image);
       }
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text(
