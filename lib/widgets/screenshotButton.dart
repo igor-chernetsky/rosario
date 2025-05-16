@@ -32,6 +32,7 @@ class ScreenshotButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
         onPressed: () => makeScreenshot(context),
+        iconSize: MediaQuery.of(context).size.width > 900 ? 24 : 20,
         icon: const Icon(Icons.image));
   }
 }

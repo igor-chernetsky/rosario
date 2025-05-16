@@ -8,8 +8,8 @@ class EditSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 100,
-      height: 80,
+      width: MediaQuery.of(context).size.width > 900 ? 100 : 70,
+      height: MediaQuery.of(context).size.width > 900 ? 80 : 50,
       child: FittedBox(
         fit: BoxFit.fill,
         child: Switch(

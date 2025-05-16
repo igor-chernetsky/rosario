@@ -6,12 +6,16 @@ import 'package:rosario/models/pattern.dart';
 import 'package:rosario/providers/mypatterns.dart';
 import 'package:rosario/utils/canvas_utils.dart';
 import 'package:rosario/utils/img_utils.dart';
+import 'package:hold_down_button/hold_down_button.dart';
 
 class ImageCanvas extends ConsumerStatefulWidget {
   final GlobalKey canvasKey = GlobalKey();
   File file;
   BeadsPattern? pattern;
   ImageBreakDetails? details;
+  bool moving = false;
+  double dx = 0;
+  double dy = 0;
   ImageCanvas({super.key, required this.file});
 
   @override
@@ -33,7 +37,8 @@ class _ImageCanvasState extends ConsumerState<ImageCanvas> {
   }
 
   updatePattern() {
-    BeadsPattern ptrn = breakImage(widget.details!, widget.file);
+    BeadsPattern ptrn =
+        breakImage(widget.details!, widget.file, widget.dx, widget.dy);
     setState(() {
       widget.pattern = ptrn;
     });
@@ -109,9 +114,89 @@ class _ImageCanvasState extends ConsumerState<ImageCanvas> {
     });
   }
 
+  movePattern(bool isX, double value) {
+    setState(() {
+      if (isX) {
+        widget.dx += value;
+      } else {
+        widget.dy += value;
+      }
+    });
+  }
+
+  getMoveImageWidgets() {
+    return [
+      HoldDownButton(
+        onHoldDown: widget.dy >= -(widget.details?.radius ?? 0)
+            ? () => movePattern(false, -1)
+            : () => {},
+        child: IconButton(
+          onPressed: widget.dy >= -(widget.details?.radius ?? 0)
+              ? () => movePattern(false, -1)
+              : null,
+          icon: const Icon(Icons.arrow_upward),
+        ),
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          HoldDownButton(
+            onHoldDown: widget.dx > -(widget.details?.radius ?? 0)
+                ? () => movePattern(true, -1)
+                : () => {},
+            child: IconButton(
+              onPressed: widget.dx > -(widget.details?.radius ?? 0)
+                  ? () => movePattern(true, -1)
+                  : null,
+              icon: const Icon(Icons.arrow_back_rounded),
+            ),
+          ),
+          HoldDownButton(
+            onHoldDown: widget.dx < 2 * (widget.details?.radius ?? 0)
+                ? () => movePattern(true, 1)
+                : () => {},
+            child: IconButton(
+              onPressed: widget.dx < 2 * (widget.details?.radius ?? 0)
+                  ? () => movePattern(true, 1)
+                  : null,
+              icon: const Icon(Icons.arrow_forward_rounded),
+            ),
+          ),
+        ],
+      ),
+      HoldDownButton(
+        onHoldDown: widget.dy < 2 * (widget.details?.radius ?? 0)
+            ? () => movePattern(false, 1)
+            : () => {},
+        child: IconButton(
+          onPressed: widget.dy < 2 * (widget.details?.radius ?? 0)
+              ? () => movePattern(false, 1)
+              : null,
+          icon: const Icon(Icons.arrow_downward),
+        ),
+      ),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        width: double.infinity,
+        child: ElevatedButton.icon(
+          onPressed: () => {
+            setState(() {
+              widget.moving = !widget.moving;
+            })
+          },
+          icon: const Icon(Icons.arrow_back),
+          label: const Text('Stom Moving'),
+        ),
+      ),
+    ];
+  }
+
   List<Widget> getButtons() {
     if (widget.details == null) {
       return [];
+    }
+    if (widget.moving) {
+      return getMoveImageWidgets();
     }
     if (widget.pattern == null) {
       return [
@@ -168,7 +253,7 @@ class _ImageCanvasState extends ConsumerState<ImageCanvas> {
           ),
         ),
         const SizedBox(
-          height: 10,
+          height: 4,
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -198,12 +283,28 @@ class _ImageCanvasState extends ConsumerState<ImageCanvas> {
                         : null,
                 icon: const Icon(Icons.arrow_upward_outlined),
                 label: const Text('More Beads'),
-              ),
+              )
             ],
           ),
         ),
         const SizedBox(
-          height: 10,
+          height: 4,
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () => {
+              setState(() {
+                widget.moving = !widget.moving;
+              })
+            },
+            icon: const Icon(Icons.open_with),
+            label: const Text('Move Pattern'),
+          ),
+        ),
+        const SizedBox(
+          height: 4,
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -257,7 +358,10 @@ class _ImageCanvasState extends ConsumerState<ImageCanvas> {
               CustomPaint(
                 key: widget.canvasKey,
                 painter: TemplatePainter(
-                    details: widget.details, pattern: widget.pattern),
+                    details: widget.details,
+                    pattern: widget.pattern,
+                    dx: widget.dx,
+                    dy: widget.dy),
                 child: SizedBox(
                   width: double.infinity,
                   child: Image.file(
@@ -287,7 +391,10 @@ class _ImageCanvasState extends ConsumerState<ImageCanvas> {
 class TemplatePainter extends CustomPainter {
   ImageBreakDetails? details;
   BeadsPattern? pattern;
-  TemplatePainter({required this.details, this.pattern});
+  double dx;
+  double dy;
+  TemplatePainter(
+      {required this.details, this.pattern, this.dx = 0, this.dy = 0});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -310,7 +417,8 @@ class TemplatePainter extends CustomPainter {
                   radius: details!.radius * 2),
               true);
           if (c != null) {
-            canvas.drawCircle(c, details!.radius, paint);
+            canvas.drawCircle(
+                Offset(c.dx + dx, c.dy + dy), details!.radius, paint);
           }
         }
       }

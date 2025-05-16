@@ -48,7 +48,9 @@ class _ColorSelectorState extends State<ColorSelector> {
                   onColorChanged: (c) => setState(() {
                     editColor = c;
                   }),
-                  paletteType: PaletteType.hsl,
+                  enableAlpha: false,
+                  hexInputBar: true,
+                  paletteType: PaletteType.hueWheel,
                 )
               : BlockPicker(
                   availableColors: const [
@@ -131,37 +133,33 @@ class _ColorSelectorState extends State<ColorSelector> {
             widget.selectedColor != null
         ? (widget.selectedColor == Colors.black ? Colors.white : Colors.black)
         : Colors.transparent;
-    return Padding(
-      padding: const EdgeInsets.all(4),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => widget.select(color),
-            child: Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: color,
-                border: Border.all(color: borderColor, width: 2),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black, blurRadius: 2)
-                ],
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(4),
-                ),
+    bool isBig = MediaQuery.of(context).size.width > 900;
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: () => widget.select(color),
+          child: Container(
+            width: isBig ? 24 : 20,
+            height: isBig ? 24 : 20,
+            decoration: BoxDecoration(
+              color: color,
+              border: Border.all(color: borderColor, width: 2),
+              boxShadow: const [BoxShadow(color: Colors.black, blurRadius: 2)],
+              borderRadius: const BorderRadius.all(
+                Radius.circular(4),
               ),
             ),
           ),
-          SizedBox(
-            width: 22,
-            child: IconButton(
-                onPressed: () => openPicker(color, index),
-                padding: const EdgeInsets.all(4),
-                splashRadius: 4,
-                icon: const Icon(Icons.arrow_drop_down)),
-          )
-        ],
-      ),
+        ),
+        SizedBox(
+          width: 22,
+          child: IconButton(
+              onPressed: () => openPicker(color, index),
+              padding: const EdgeInsets.all(4),
+              splashRadius: 4,
+              icon: const Icon(Icons.arrow_drop_down)),
+        )
+      ],
     );
   }
 

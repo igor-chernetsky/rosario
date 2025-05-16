@@ -13,6 +13,8 @@ class ImageBreakDetails {
   double module;
   int width;
   int height;
+  int dx;
+  int dy;
 
   ImageBreakDetails(
       {required this.horizontal,
@@ -21,6 +23,8 @@ class ImageBreakDetails {
       required this.height,
       required this.width,
       required this.module,
+      this.dx = 0,
+      this.dy = 0,
       this.patternId = 'Square Stitch'});
 
   change(int delta) {
@@ -79,11 +83,13 @@ getAvarageColor(fimg.Image bitmap, int sx, int sy, int size) {
   double count = 0;
   for (int y = sy; y < bitmap.height && y < sy + size; y++) {
     for (int x = sx; x < bitmap.width && x < sx + size; x++) {
-      fimg.Pixel pixel = bitmap.getPixel(x, y);
-      red = red + pixel.r;
-      green = green + pixel.g;
-      blue = blue + pixel.b;
-      count = count + 1;
+      if (bitmap.width > x && bitmap.height > y && x > 0 && y > 0) {
+        fimg.Pixel pixel = bitmap.getPixel(x, y);
+        red = red + pixel.r;
+        green = green + pixel.g;
+        blue = blue + pixel.b;
+        count = count + 1;
+      }
     }
   }
   if (count == 0) {
@@ -96,9 +102,7 @@ getAvarageColor(fimg.Image bitmap, int sx, int sy, int size) {
 }
 
 BeadsPattern breakImage(
-  ImageBreakDetails details,
-  File file,
-) {
+    ImageBreakDetails details, File file, double dx, double dy) {
   List<List<Color?>> matrix = [];
   List<Color> usedColors = [];
   fimg.Image? bitmap = fimg.decodeImage(file.readAsBytesSync())!;
@@ -131,11 +135,11 @@ BeadsPattern breakImage(
                     radius: imgRad,
                     patternId: details.patternId),
                 true);
-        Color? avrgColor =
-            getAvarageColor(bitmap, ix.floor(), iy.floor(), imgRad.floor());
+        Color? avrgColor = getAvarageColor(bitmap, ix.floor() + dx.floor(),
+            iy.floor() + dy.floor(), imgRad.floor());
         if (avrgColor != null && !usedColors.contains(avrgColor)) {
           List<Color> lessDelta = usedColors.where((e) {
-            return getColorDelta(e, avrgColor) < 20;
+            return getColorDelta(e, avrgColor) < 16;
           }).toList();
           lessDelta.sort(colorCompare);
           if (lessDelta.isEmpty && avrgColor != Colors.black) {

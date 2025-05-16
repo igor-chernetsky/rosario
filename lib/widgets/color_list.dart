@@ -29,13 +29,14 @@ class _ColorSelectorState extends State<ColorList> {
   Color editColor = Colors.white;
   colorPicker(Color color, int index) {
     bool isDark = getColorLight(color) < 400;
+    bool isBig = MediaQuery.of(context).size.width > 900;
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Row(
         children: [
           Container(
-            width: 32,
-            height: 32,
+            width: isBig ? 32 : 24,
+            height: isBig ? 32 : 24,
             decoration: BoxDecoration(
               color: color,
               boxShadow: const [BoxShadow(color: Colors.black, blurRadius: 2)],
@@ -46,7 +47,9 @@ class _ColorSelectorState extends State<ColorList> {
             child: Center(
                 child: Text(
               getColorNumber(color),
-              style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              style: TextStyle(
+                  color: isDark ? Colors.white : Colors.black,
+                  fontSize: isBig ? 14 : 12),
             )),
           )
         ],

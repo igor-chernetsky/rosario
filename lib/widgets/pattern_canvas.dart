@@ -2,6 +2,7 @@ import 'package:confirm_dialog/confirm_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rosario/widgets/bg_selector.dart';
 import 'package:rosario/widgets/color_list.dart';
 import 'package:rosario/widgets/color_selector.dart';
 import 'package:rosario/widgets/patternn_painter.dart';
@@ -27,6 +28,7 @@ class PatternCanvas extends ConsumerStatefulWidget {
 class _PatternCanvasState extends ConsumerState<PatternCanvas> {
   final GlobalKey canvasKey = GlobalKey();
   Color? selectedColor;
+  String? bgColor = 'bg1';
   bool moveble = true;
   bool isEditing = false;
   bool showNumber = false;
@@ -363,10 +365,10 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
             controller: screenshotController,
             child: Container(
               width: double.infinity,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                   image: DecorationImage(
                       opacity: 0.6,
-                      image: AssetImage("assets/img/bg1.png"),
+                      image: AssetImage("assets/img/$bgColor.png"),
                       repeat: ImageRepeat.repeat)),
               height: double.infinity,
               padding: isEditing
@@ -415,6 +417,11 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                BgSelector(
+                    selected: bgColor,
+                    select: (String value) => setState(() {
+                          bgColor = value;
+                        })),
                 IconButton(
                   onPressed: () {
                     setState(() {
@@ -427,23 +434,26 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
                 ),
                 IconButton(
                     onPressed: rotate,
+                    iconSize: MediaQuery.of(context).size.width > 900 ? 24 : 20,
                     icon: const Icon(Icons.rotate_90_degrees_ccw)),
                 IconButton(
                   onPressed: _transformationController.value.row0[0] == 3
                       ? null
                       : () => zoom(1),
+                  iconSize: MediaQuery.of(context).size.width > 900 ? 24 : 20,
                   icon: const Icon(Icons.zoom_in),
                 ),
                 IconButton(
                   onPressed: _transformationController.value.row0[0] == 1
                       ? null
                       : () => zoom(-1),
+                  iconSize: MediaQuery.of(context).size.width > 900 ? 24 : 20,
                   icon: const Icon(Icons.zoom_out),
                 ),
-                if (widget.export != null)
-                  IconButton(
-                      onPressed: () => widget.export!(context, widget.pattern),
-                      icon: const Icon(Icons.ios_share)),
+                // if (widget.export != null)
+                //   IconButton(
+                //       onPressed: () => widget.export!(context, widget.pattern),
+                //       icon: const Icon(Icons.ios_share)),
                 if (!isEditing)
                   ScreenshotButton(
                       screenshotController: screenshotController,
