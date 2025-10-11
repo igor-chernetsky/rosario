@@ -10,13 +10,19 @@ class PatternPainter extends CustomPainter {
   bool isEditing;
   bool showNumbers;
   int rotation;
+  Set<int>? selectedRows;
+  Set<int>? selectedColumns;
+  String? copyType;
 
   PatternPainter(
       {required this.pattern,
       required this.color,
       required this.isEditing,
       required this.showNumbers,
-      required this.rotation});
+      required this.rotation,
+      this.selectedRows,
+      this.selectedColumns,
+      this.copyType});
 
   drawText(String text, double x, double y, Canvas canvas, TextStyle? style) {
     bool isDark = getColorLight(color) < 400;
@@ -86,7 +92,16 @@ class PatternPainter extends CustomPainter {
         double halfRadius = pattern.radius / 2.5;
         double tripRadius = pattern.radius / 3.5;
         if (pattern.matrix?[y][x] != null && c != null) {
-          final paint = Paint()..color = pattern.matrix?[y][x] ?? Colors.white;
+          Color beadColor = pattern.matrix?[y][x] ?? Colors.white;
+          
+          // Apply transparency for selected rows/columns in copy mode
+          if (copyType == 'rows' && selectedRows != null && selectedRows!.contains(y)) {
+            beadColor = beadColor.withOpacity(0.5);
+          } else if (copyType == 'columns' && selectedColumns != null && selectedColumns!.contains(x)) {
+            beadColor = beadColor.withOpacity(0.5);
+          }
+          
+          final paint = Paint()..color = beadColor;
           canvas.drawCircle(c, 9, paint);
           drawCircleText(x, y, c, canvas, tripRadius, halfRadius);
         }

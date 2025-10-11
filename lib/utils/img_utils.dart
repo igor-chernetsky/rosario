@@ -4,6 +4,7 @@ import 'package:image/image.dart' as fimg;
 import 'package:flutter/material.dart';
 import 'package:rosario/data/saved_blueprints.dart';
 import 'package:rosario/models/pattern.dart';
+import 'package:rosario/utils/color_reducer.dart';
 
 class ImageBreakDetails {
   int horizontal;
@@ -61,19 +62,6 @@ int getColorDelta(Color c1, Color c2) {
   return (c1.blue - c2.blue).abs() +
       (c1.red - c2.red).abs() +
       (c1.green - c2.green).abs();
-}
-
-List<Color>? findLessDifferent(List<Color> colors) {
-  int minDelta = getColorDelta(colors[0], colors[1]);
-  List<Color> result = [colors[0], colors[1]];
-  for (int i = 1; i < colors.length - 1; i++) {
-    int delta = getColorDelta(colors[i], colors[i + 1]);
-    if (delta < minDelta) {
-      minDelta = delta;
-      result = [colors[i], colors[i + 1]];
-    }
-  }
-  return result;
 }
 
 getAvarageColor(fimg.Image bitmap, int sx, int sy, int size) {
@@ -138,41 +126,21 @@ BeadsPattern breakImage(
         Color? avrgColor = getAvarageColor(bitmap, ix.floor() + dx.floor(),
             iy.floor() + dy.floor(), imgRad.floor());
         if (avrgColor != null && !usedColors.contains(avrgColor)) {
-          List<Color> lessDelta = usedColors.where((e) {
-            return getColorDelta(e, avrgColor) < 16;
-          }).toList();
-          lessDelta.sort(colorCompare);
-          if (lessDelta.isEmpty && avrgColor != Colors.black) {
-            column.add(avrgColor);
-            usedColors.add(avrgColor);
-          } else {
-            column.add(lessDelta.last);
-          }
-        } else {
-          column.add(avrgColor);
+          usedColors.add(avrgColor);
         }
+        column.add(avrgColor);
       }
       matrix.add(column);
     }
+    ColorReductionResult reductionResult =
+        reduceColorsWithMapping(usedColors, 12);
 
-    usedColors.sort(colorCompare);
-    while (usedColors.length > 12) {
-      List<Color>? replacement = findLessDifferent(usedColors);
-      if (replacement != null) {
-        usedColors.remove(replacement[0]);
-        for (int i = 0; i < matrix.length; i++) {
-          for (int j = 0; j < matrix[i].length; j++) {
-            if (matrix[i][j] == replacement[0]) {
-              matrix[i][j] = replacement[1];
-            }
-          }
-        }
-      }
-    }
+    usedColors = reductionResult.reducedColors;
+
     for (int i = 0; i < matrix.length; i++) {
       for (int j = 0; j < matrix[i].length; j++) {
-        if (!usedColors.contains(matrix[i][j])) {
-          print('new color');
+        if (reductionResult.colorMapping[matrix[i][j]] != null) {
+          matrix[i][j] = reductionResult.colorMapping[matrix[i][j]];
         }
       }
     }

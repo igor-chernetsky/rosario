@@ -12,9 +12,10 @@ class Blueprints extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8),
       child: GridView.count(
+        childAspectRatio: 0.9,
         crossAxisCount: 2,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
+        mainAxisSpacing: 4,
+        crossAxisSpacing: 4,
         children: savedBlueprints.map((pattern) {
           BeadsPattern item = BeadsPattern(
               width: pattern.width,
@@ -39,7 +40,7 @@ class Blueprints extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       item.patternId,
-                      style: Theme.of(context).textTheme.titleLarge,
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ),
                 ],

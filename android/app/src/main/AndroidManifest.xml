@@ -4,6 +4,7 @@
         android:label="rosario"
         android:name="${applicationName}"
         android:requestLegacyExternalStorage="true"
+        android:extractNativeLibs="false"
         android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"

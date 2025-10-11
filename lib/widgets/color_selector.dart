@@ -26,12 +26,31 @@ class _ColorSelectorState extends State<ColorSelector> {
     Colors.blue,
     Colors.green
   ];
+  
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   addColor() {
     setState(() {
       Color randomColor =
           Colors.primaries[Random().nextInt(Colors.primaries.length)];
       colorsList.add(randomColor);
+    });
+    
+    // Scroll to bottom after adding color
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
     });
   }
 
@@ -168,14 +187,51 @@ class _ColorSelectorState extends State<ColorSelector> {
     if (widget.pattern.colors != null) {
       colorsList = widget.pattern.colors!;
     }
+    
+    bool isBig = MediaQuery.of(context).size.width > 900;
+    int maxColorsBeforeScroll = isBig ? 7 : 5;
+    
     List<Widget> colorWidgets = [];
     for (var index = 0; index < colorsList.length; index++) {
       colorWidgets.add(colorPicker(colorsList[index], index));
     }
-    if (colorsList.length < 9) {
-      colorWidgets.add(
-          IconButton(onPressed: addColor, icon: const Icon(Icons.plus_one)));
+    
+    // Add color button (always visible)
+    Widget addColorButton = colorsList.length < 9
+        ? IconButton(onPressed: addColor, icon: const Icon(Icons.plus_one))
+        : const SizedBox.shrink();
+    
+    // If we have more colors than the threshold, make only colors scrollable
+    if (colorWidgets.length > maxColorsBeforeScroll) {
+      return Column(
+        children: [
+          // Scrollable colors container with darker background
+          Container(
+            height: isBig ? 270 : 250, // Increased height by 50px to show half of next color
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100, // Slightly darker background
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade300, width: 1),
+            ),
+            child: Scrollbar(
+              thumbVisibility: true,
+              trackVisibility: true,
+              thickness: 6,
+              radius: const Radius.circular(3),
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(children: colorWidgets),
+                ),
+              ),
+            ),
+          ),
+          addColorButton,
+        ],
+      );
     }
-    return Column(children: colorWidgets);
+    
+    return Column(children: [...colorWidgets, addColorButton]);
   }
 }

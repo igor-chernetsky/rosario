@@ -49,7 +49,7 @@ class _ColorSelectorState extends State<ColorList> {
               getColorNumber(color),
               style: TextStyle(
                   color: isDark ? Colors.white : Colors.black,
-                  fontSize: isBig ? 14 : 12),
+                  fontSize: isBig ? 14 : 10),
             )),
           )
         ],
