@@ -11,6 +11,8 @@ class BeadsPattern {
   int xdelta;
   int ydelta;
   List<Color>? colors;
+  Map<String, dynamic>? rowsPattern;
+  Map<String, dynamic>? columnsPattern;
 
   BeadsPattern(
       {this.name,
@@ -20,6 +22,8 @@ class BeadsPattern {
       this.id,
       this.matrix,
       this.colors,
+      this.rowsPattern,
+      this.columnsPattern,
       this.radius = 20,
       this.xdelta = 1,
       this.ydelta = 1}) {
@@ -51,6 +55,8 @@ class BeadsPattern {
         'colors': colors?.map((col) => col.value.toString()).toList(),
         'matrix': matrix
             ?.map((e) => e.map((col) => col?.value.toString()).toList())
-            .toList()
+            .toList(),
+        'rowsPattern': rowsPattern,
+        'columnsPattern': columnsPattern
       };
 }

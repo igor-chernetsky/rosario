@@ -621,7 +621,7 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
             Padding(
               padding: const EdgeInsets.only(top: 70),
               child: Card(
-                color: const Color.fromARGB(255, 202, 202, 202),
+                color: const Color.fromARGB(180, 202, 202, 202),
                 child: Column(
                   children: [
                     // Copy type selection
@@ -798,8 +798,7 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
 
   showControls() {
     return Padding(
-      padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).padding.bottom),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -809,7 +808,7 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
               Padding(
                 padding: const EdgeInsets.only(top: 70),
                 child: Card(
-                  color: const Color.fromARGB(255, 202, 202, 202),
+                  color: const Color.fromARGB(180, 202, 202, 202),
                   child: Column(
                     children: [
                       if (_transformationController.value.row0[0] > 1)
@@ -864,14 +863,15 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
           ),
           Row(mainAxisAlignment: MainAxisAlignment.start, children: [
             SizedBox(
-                width: 330,
+                width: 280,
                 child: Card(
-                    color: const Color.fromARGB(255, 202, 202, 202),
+                    color: const Color.fromARGB(180, 202, 202, 202),
                     child: Row(
                       children: [
                         IconButton(
-                          onPressed:
-                              selectedColor == null || moveble ? null : paintAll,
+                          onPressed: selectedColor == null || moveble
+                              ? null
+                              : paintAll,
                           color: selectedColor,
                           icon: const Icon(Icons.format_color_fill),
                         ),
@@ -881,8 +881,9 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
                             icon: const Icon(Icons.refresh),
                           ),
                         IconButton(
-                          onPressed:
-                              ref.read(historyProvider).isNotEmpty ? undo : null,
+                          onPressed: ref.read(historyProvider).isNotEmpty
+                              ? undo
+                              : null,
                           icon: const Icon(Icons.undo),
                         ),
                         RowEditor(
@@ -890,8 +891,8 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
                             afterChange: () {
                               setState(() {
                                 selectedColor = null;
-                                Future.delayed(const Duration(milliseconds: 100),
-                                    () {
+                                Future.delayed(
+                                    const Duration(milliseconds: 100), () {
                                   ref
                                       .read(historyProvider.notifier)
                                       .pushChanges(widget.pattern.matrix!);
@@ -1030,10 +1031,10 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
                   iconSize: MediaQuery.of(context).size.width > 900 ? 24 : 20,
                   icon: const Icon(Icons.zoom_out),
                 ),
-                // if (widget.export != null)
-                //   IconButton(
-                //       onPressed: () => widget.export!(context, widget.pattern),
-                //       icon: const Icon(Icons.ios_share)),
+                if (widget.export != null)
+                  IconButton(
+                      onPressed: () => widget.export!(context, widget.pattern),
+                      icon: const Icon(Icons.ios_share)),
                 if (isEditing)
                   IconButton(
                     onPressed: toggleCopyMode,
