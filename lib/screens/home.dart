@@ -7,6 +7,7 @@ import 'package:rosario/screens/settings.dart';
 import 'package:rosario/widgets/pattern_filter.dart';
 
 import '../providers/mypatterns.dart';
+import '../widgets/share_pattern_button.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   static String routeName = '/mypatterns';
@@ -24,12 +25,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (selectedFilter == null) {
       return myPatterns;
     }
-    return myPatterns.where((pattern) => pattern.patternId == selectedFilter).toList();
+    return myPatterns
+        .where((pattern) => pattern.patternId == selectedFilter)
+        .toList();
   }
 
   // Get unique pattern types from current patterns
   List<String> getAvailablePatternTypes(List<dynamic> myPatterns) {
-    return myPatterns.map((pattern) => pattern.patternId).where((id) => id != null).cast<String>().toSet().toList();
+    return myPatterns
+        .map((pattern) => pattern.patternId)
+        .where((id) => id != null)
+        .cast<String>()
+        .toSet()
+        .toList();
   }
 
   getEmptyState(BuildContext context) {
@@ -93,7 +101,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         if (approved) {
           // Find the original index in myPatterns
           final patternToRemove = filteredPatterns[index];
-          final originalIndex = myPatterns.indexWhere((p) => p.id == patternToRemove.id);
+          final originalIndex =
+              myPatterns.indexWhere((p) => p.id == patternToRemove.id);
           if (originalIndex != -1) {
             ref
                 .read(myPatternsProvider.notifier)
@@ -114,68 +123,78 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () => Navigator.of(context).pushNamed(SettingsScreen.routeName),
+            onPressed: () =>
+                Navigator.of(context).pushNamed(SettingsScreen.routeName),
             tooltip: 'Settings',
           ),
         ],
       ),
       body: SafeArea(
           child: Column(
-            children: [
-              // Pattern filter (only show if there are patterns and available types)
-              if (myPatterns.isNotEmpty && availablePatternTypes.isNotEmpty)
-                PatternFilter(
-                  selectedFilter: selectedFilter,
-                  onFilterChanged: (String? newValue) {
-                    setState(() {
-                      selectedFilter = newValue;
-                    });
-                  },
-                  availablePatterns: availablePatternTypes,
-                ),
-              
-              // Patterns list
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: myPatterns.isEmpty
-                      ? getEmptyState(context)
-                      : ListView.builder(
-                          itemBuilder: (ctx, index) => Column(
-                            children: [
-                              ListTile(
-                                splashColor: Theme.of(context).splashColor,
-                                title: Text(
-                                  filteredPatterns[index].name ?? '',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 20,
-                                      color: Theme.of(context).primaryColor),
+        children: [
+          // Pattern filter (only show if there are patterns and available types)
+          if (myPatterns.isNotEmpty && availablePatternTypes.isNotEmpty)
+            PatternFilter(
+              selectedFilter: selectedFilter,
+              onFilterChanged: (String? newValue) {
+                setState(() {
+                  selectedFilter = newValue;
+                });
+              },
+              availablePatterns: availablePatternTypes,
+            ),
+
+          // Patterns list
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: myPatterns.isEmpty
+                  ? getEmptyState(context)
+                  : ListView.builder(
+                      itemBuilder: (ctx, index) => Column(
+                        children: [
+                          ListTile(
+                            splashColor: Theme.of(context).splashColor,
+                            title: Text(
+                              filteredPatterns[index].name ?? '',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 20,
+                                  color: Theme.of(context).primaryColor),
+                            ),
+                            subtitle: Text(
+                              filteredPatterns[index].patternId,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(color: Colors.white),
+                            ),
+                            onTap: () => Navigator.of(context).pushNamed(
+                                EditPatternScreen.routeName,
+                                arguments: filteredPatterns[index]),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SharePatternButton(
+                                  pattern: filteredPatterns[index],
                                 ),
-                                subtitle: Text(
-                                  filteredPatterns[index].patternId,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium!
-                                      .copyWith(color: Colors.white),
-                                ),
-                                onTap: () => Navigator.of(context).pushNamed(
-                                    EditPatternScreen.routeName,
-                                    arguments: filteredPatterns[index]),
-                                trailing: IconButton(
+                                IconButton(
                                   icon: const Icon(Icons.delete),
                                   onPressed: () => removeItem(index),
+                                  tooltip: 'Delete',
                                 ),
-                              ),
-                              const Divider()
-                            ],
+                              ],
+                            ),
                           ),
-                          itemCount: filteredPatterns.length,
-                        ),
-                ),
-              ),
-            ],
-          )),
+                          const Divider()
+                        ],
+                      ),
+                      itemCount: filteredPatterns.length,
+                    ),
+            ),
+          ),
+        ],
+      )),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () =>
             Navigator.of(context).pushNamed(SelectPatternScreen.routeName),

@@ -1031,10 +1031,10 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
                   iconSize: MediaQuery.of(context).size.width > 900 ? 24 : 20,
                   icon: const Icon(Icons.zoom_out),
                 ),
-                if (widget.export != null)
-                  IconButton(
-                      onPressed: () => widget.export!(context, widget.pattern),
-                      icon: const Icon(Icons.ios_share)),
+                // if (widget.export != null)
+                //   IconButton(
+                //       onPressed: () => widget.export!(context, widget.pattern),
+                //       icon: const Icon(Icons.ios_share)),
                 if (isEditing)
                   IconButton(
                     onPressed: toggleCopyMode,

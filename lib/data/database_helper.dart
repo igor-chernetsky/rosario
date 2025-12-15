@@ -6,9 +6,10 @@ import 'package:path_provider/path_provider.dart';
 
 class DatabaseHelper {
   static const _databaseName = "Roario.db";
-  static const _databaseVersion = 1;
+  static const _databaseVersion = 2;
 
   static const table = 'pattern_v1';
+  static const userTable = 'user';
 
   static const columnId = '_id';
   static const columnName = 'name';
@@ -50,6 +51,7 @@ class DatabaseHelper {
       path,
       version: _databaseVersion,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -64,6 +66,24 @@ class DatabaseHelper {
             $columnColors TEXT NOT NULL
           )
           ''');
+    await db.execute('''
+          CREATE TABLE $userTable (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT
+          )
+          ''');
+  }
+
+  // SQL code to upgrade the database
+  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('''
+            CREATE TABLE IF NOT EXISTS $userTable (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              name TEXT
+            )
+            ''');
+    }
   }
 
   // Helper methods
@@ -142,5 +162,36 @@ class DatabaseHelper {
       where: '$columnId = ?',
       whereArgs: [id],
     );
+  }
+
+  // User table methods
+  Future<String?> getUserName() async {
+    final results = await _db.query(
+      userTable,
+      limit: 1,
+      orderBy: 'id DESC',
+    );
+    if (results.isEmpty) {
+      return null;
+    }
+    return results.first['name'] as String?;
+  }
+
+  Future<void> setUserName(String userName) async {
+    // Check if a user record exists
+    final existing = await _db.query(userTable, limit: 1);
+    
+    if (existing.isEmpty) {
+      // Insert new record
+      await _db.insert(userTable, {'name': userName});
+    } else {
+      // Update existing record
+      await _db.update(
+        userTable,
+        {'name': userName},
+        where: 'id = ?',
+        whereArgs: [existing.first['id']],
+      );
+    }
   }
 }

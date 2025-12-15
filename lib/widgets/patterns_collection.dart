@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rosario/data/saved_patterns.dart';
 import 'package:rosario/screens/image_import.dart';
 import 'package:rosario/widgets/pattern_filter.dart';
+import 'package:rosario/widgets/import_from_file_tile.dart';
 
 import '../models/pattern.dart';
 import '../screens/edit.dart';
@@ -99,6 +100,7 @@ class _PatternsCollectionState extends State<PatternsCollection> {
                     ),
                   ),
                 ),
+                const ImportFromFileTile(),
                 ...filteredItems.map((pattern) {
                   BeadsPattern item = BeadsPattern(
                       width: pattern.width,
@@ -149,6 +151,7 @@ class _PatternsCollectionState extends State<PatternsCollection> {
     );
   }
 }
+
 
 
 
