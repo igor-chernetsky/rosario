@@ -223,7 +223,7 @@ class ImportFromFileTile extends ConsumerWidget {
               height: 50,
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                'Import from file',
+                'Import from shared file',
                 style: TextStyle(
                   color: Theme.of(context).primaryColor,
                   fontSize: 16,
