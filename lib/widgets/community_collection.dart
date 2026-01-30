@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:rosario/models/pattern.dart';
 import 'package:rosario/screens/edit.dart';
 import 'package:rosario/widgets/pattern_filter.dart';
+import 'package:rosario/services/user_prefs_service.dart';
+import 'package:rosario/screens/settings.dart';
 
 class CommunityCollection extends StatefulWidget {
   const CommunityCollection({super.key});
@@ -14,17 +16,28 @@ class CommunityCollection extends StatefulWidget {
 }
 
 class _CommunityCollectionState extends State<CommunityCollection> {
+  static const int MAX_PATTERNS = 5; // For testing, limit free users to 5 patterns
+  
   List<BeadsPattern> items = [];
   Map<String, String> patternIdToUserName = {}; // Map pattern ID to user name
   Map<String, String> patternIdToImageUrl = {}; // Map pattern ID to image URL
   String? selectedFilter;
   bool isLoading = true;
   String? errorMessage;
+  bool isSubscribed = false;
 
   @override
   void initState() {
     super.initState();
+    _checkSubscriptionStatus();
     _fetchCommunityPatterns();
+  }
+
+  Future<void> _checkSubscriptionStatus() async {
+    final subscribed = await UserPrefsService.isSubscribed();
+    setState(() {
+      isSubscribed = subscribed;
+    });
   }
 
   Future<void> _fetchCommunityPatterns() async {
@@ -130,10 +143,16 @@ class _CommunityCollectionState extends State<CommunityCollection> {
 
   // Get filtered patterns based on selected filter
   List<BeadsPattern> getFilteredPatterns() {
-    if (selectedFilter == null) {
-      return items;
+    List<BeadsPattern> filtered = selectedFilter == null
+        ? items
+        : items.where((pattern) => pattern.patternId == selectedFilter).toList();
+    
+    // Limit patterns for free users
+    if (!isSubscribed && filtered.length > MAX_PATTERNS) {
+      return filtered.take(MAX_PATTERNS).toList();
     }
-    return items.where((pattern) => pattern.patternId == selectedFilter).toList();
+    
+    return filtered;
   }
 
   // Get unique pattern types from current collection
@@ -176,6 +195,10 @@ class _CommunityCollectionState extends State<CommunityCollection> {
 
     final filteredItems = getFilteredPatterns();
     final availablePatternTypes = getAvailablePatternTypes();
+    final allFilteredItems = selectedFilter == null
+        ? items
+        : items.where((pattern) => pattern.patternId == selectedFilter).toList();
+    final showSubscribeButton = !isSubscribed && allFilteredItems.length > MAX_PATTERNS;
 
     return Column(
       children: [
@@ -313,6 +336,78 @@ class _CommunityCollectionState extends State<CommunityCollection> {
                       );
                     }).toList(),
                   ),
+          ),
+        ),
+
+        // Subscribe button for free users (below the list)
+        if (showSubscribeButton)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Card(
+              color: Theme.of(context).primaryColor,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Text(
+                      'Showing ${filteredItems.length} of ${allFilteredItems.length} patterns',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        await Navigator.of(context).pushNamed(SettingsScreen.routeName);
+                        // Refresh subscription status when returning from settings
+                        _checkSubscriptionStatus();
+                      },
+                      icon: const Icon(Icons.card_membership),
+                      label: const Text('Subscribe to show more'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Theme.of(context).primaryColor,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+        // Note about sharing patterns (at the very bottom)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 24.0),
+          child: Card(
+            color: Theme.of(context).primaryColor.withOpacity(0.05),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: Theme.of(context).primaryColor,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Share your own patterns with the Community! It will be checked and shown for everyone!',
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ],

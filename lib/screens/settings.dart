@@ -4,6 +4,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../providers/version_provider.dart';
 import '../widgets/update_dialog.dart';
 import '../services/version_service.dart';
+import '../services/user_prefs_service.dart';
+import '../services/subscription_service.dart';
 
 class SettingsScreen extends ConsumerWidget {
   static const String routeName = '/settings';
@@ -62,6 +64,30 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: const Text('Rate our app on Google Play Store'),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () => _openRateAndReview(context),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.card_membership),
+                  title: const Text('Manage Subscription'),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () => _showSubscriptionDialog(context),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: Text(
+                    'Subscription is just to support the author. For now, subscribed users will have almost the same functionality, just access to all Community patterns, while for free users this access will be limited.',
+                    style: TextStyle(
+                      color: Colors.grey[800],
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -144,6 +170,128 @@ class SettingsScreen extends ConsumerWidget {
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  Future<void> _showSubscriptionDialog(BuildContext context) async {
+    final subscriptionService = SubscriptionService();
+    await subscriptionService.initialize();
+    
+    final isSubscribed = await UserPrefsService.isSubscribed();
+    final product = subscriptionService.getProduct();
+    
+    if (!context.mounted) return;
+    
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(isSubscribed ? 'Subscription Active' : 'Subscribe'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (isSubscribed)
+                const Text('You have an active subscription. Thank you for your support!')
+              else ...[
+                const Text('Subscribe to support the author and get access to all Community patterns.'),
+                if (product != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    'Price: ${product.price}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ],
+              const SizedBox(height: 16),
+              if (!isSubscribed)
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      final success = await subscriptionService.purchaseSubscription();
+                      if (context.mounted) {
+                        if (success) {
+                          Navigator.of(context).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Processing subscription...'),
+                              backgroundColor: Colors.blue,
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Failed to start purchase. Please try again.'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error: $e'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  child: const Text('Subscribe'),
+                ),
+              if (isSubscribed)
+                ElevatedButton(
+                  onPressed: () async {
+                    // Open Google Play subscription management
+                    try {
+                      const url = 'https://play.google.com/store/account/subscriptions';
+                      final uri = Uri.parse(url);
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        _showErrorSnackBar(context, 'Could not open subscription management');
+                      }
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                  ),
+                  child: const Text('Manage Subscription'),
+                ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () async {
+                  await subscriptionService.restorePurchases();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Restoring purchases...'),
+                        backgroundColor: Colors.blue,
+                      ),
+                    );
+                  }
+                },
+                child: const Text('Restore Purchases'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                subscriptionService.dispose();
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close'),
+            ),
+          ],
+        ),
       ),
     );
   }

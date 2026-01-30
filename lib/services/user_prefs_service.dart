@@ -1,6 +1,7 @@
 import 'package:android_id/android_id.dart';
 import 'package:flutter/services.dart';
 import 'package:rosario/main.dart';
+import 'package:rosario/services/subscription_service.dart';
 
 class UserPrefsService {
   static const _androidId = AndroidId();
@@ -37,6 +38,14 @@ class UserPrefsService {
       // Fallback for any other errors
       return 'unknown-device';
     }
+  }
+
+  static Future<bool> isSubscribed() async {
+    return await SubscriptionService.isSubscribed();
+  }
+
+  static Future<void> setSubscribed(bool isSubscribed) async {
+    await SubscriptionService.setSubscribed(isSubscribed);
   }
 }
 
