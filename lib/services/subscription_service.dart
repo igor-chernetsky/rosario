@@ -5,7 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SubscriptionService {
   static const String _subscriptionKey = 'is_subscribed';
-  static const String _subscriptionProductId = 'pro';
+  /// Product ID must match App Store Connect (iOS) and Google Play (Android).
+  static const String subscriptionProductId = 'pro';
+  static const String _subscriptionProductId = subscriptionProductId;
   
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
   StreamSubscription<List<PurchaseDetails>>? _subscription;
@@ -140,7 +142,10 @@ class SubscriptionService {
     }
   }
 
-  // Check current subscription status from Google Play
+  /// Whether the store is available (can be false on iOS if not configured or in simulator without StoreKit config).
+  bool get isStoreAvailable => _isAvailable;
+
+  /// Check current subscription status (restores purchases on iOS/Android and returns cached status).
   Future<bool> checkSubscriptionStatus() async {
     if (!_isAvailable) {
       return await isSubscribed();

@@ -3,6 +3,9 @@ import 'package:rosario/widgets/patterns_collection.dart';
 import 'package:rosario/widgets/community_collection.dart';
 import 'package:rosario/widgets/blueprints.dart';
 import 'package:rosario/screens/image_import.dart';
+import 'package:rosario/screens/settings.dart';
+import 'package:rosario/services/platform_helper.dart';
+import 'package:rosario/services/user_prefs_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:convert';
 import 'dart:io';
@@ -90,9 +93,7 @@ class SelectPatternScreen extends ConsumerWidget {
             context,
             icon: Icons.add_a_photo,
             title: 'Import from image',
-            onTap: () {
-              Navigator.of(context).pushNamed(ImageImport.routeName);
-            },
+            onTap: () => _handleImportFromImageTap(context),
           ),
           const SizedBox(height: 12),
           _buildOption(
@@ -104,6 +105,20 @@ class SelectPatternScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// On iOS, Import from image is premium-only; non-subscribers see the subscription dialog.
+  static Future<void> _handleImportFromImageTap(BuildContext context) async {
+    if (isIOS) {
+      final isSubscribed = await UserPrefsService.isSubscribed();
+      if (!isSubscribed) {
+        await SettingsScreen.showSubscriptionDialog(context);
+        return;
+      }
+    }
+    if (context.mounted) {
+      Navigator.of(context).pushNamed(ImageImport.routeName);
+    }
   }
 
   Widget _buildOption(

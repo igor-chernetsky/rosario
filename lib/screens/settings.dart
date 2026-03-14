@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../providers/version_provider.dart';
 import '../widgets/update_dialog.dart';
 import '../services/version_service.dart';
+import '../services/platform_helper.dart';
 import '../services/user_prefs_service.dart';
 import '../services/subscription_service.dart';
 
@@ -18,7 +19,19 @@ class SettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: _SettingsTitleTapDetector(
+          onActivateSubscription: (ctx) async {
+            await UserPrefsService.setSubscribed(true);
+            if (ctx.mounted) {
+              ScaffoldMessenger.of(ctx).showSnackBar(
+                const SnackBar(
+                  content: Text('Subscription activated'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          },
+        ),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
@@ -174,15 +187,16 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _showSubscriptionDialog(BuildContext context) async {
+  /// Shows the subscription dialog. Can be called from other screens (e.g. to gate premium features on iOS).
+  static Future<void> showSubscriptionDialog(BuildContext context) async {
     final subscriptionService = SubscriptionService();
     await subscriptionService.initialize();
-    
+
     final isSubscribed = await UserPrefsService.isSubscribed();
     final product = subscriptionService.getProduct();
-    
+
     if (!context.mounted) return;
-    
+
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -196,6 +210,13 @@ class SettingsScreen extends ConsumerWidget {
                 const Text('You have an active subscription. Thank you for your support!')
               else ...[
                 const Text('Subscribe to support the author and get access to all Community patterns.'),
+                if (isIOS) ...[
+                  const SizedBox(height: 8),
+                  const Text(
+                    'On iOS, subscription also includes Import from image: create patterns from your photos.',
+                    style: TextStyle(fontSize: 13),
+                  ),
+                ],
                 if (product != null) ...[
                   const SizedBox(height: 12),
                   Text(
@@ -247,16 +268,29 @@ class SettingsScreen extends ConsumerWidget {
               if (isSubscribed)
                 ElevatedButton(
                   onPressed: () async {
-                    // Open Google Play subscription management
                     try {
-                      const url = 'https://play.google.com/store/account/subscriptions';
+                      final String url = isIOS
+                          ? 'https://apps.apple.com/account/subscriptions'
+                          : 'https://play.google.com/store/account/subscriptions';
                       final uri = Uri.parse(url);
                       if (await canLaunchUrl(uri)) {
                         await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      } else if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Could not open subscription management'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
                       }
                     } catch (e) {
                       if (context.mounted) {
-                        _showErrorSnackBar(context, 'Could not open subscription management');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Could not open subscription management'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
                       }
                     }
                   },
@@ -293,6 +327,42 @@ class SettingsScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _showSubscriptionDialog(BuildContext context) async {
+    await SettingsScreen.showSubscriptionDialog(context);
+  }
+}
+
+/// Hidden shortcut: 10 taps on the Settings title activate subscription (works in prod).
+class _SettingsTitleTapDetector extends StatefulWidget {
+  final void Function(BuildContext context) onActivateSubscription;
+
+  const _SettingsTitleTapDetector({required this.onActivateSubscription});
+
+  @override
+  State<_SettingsTitleTapDetector> createState() =>
+      _SettingsTitleTapDetectorState();
+}
+
+class _SettingsTitleTapDetectorState extends State<_SettingsTitleTapDetector> {
+  int _tapCount = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        setState(() {
+          _tapCount++;
+          if (_tapCount >= 10) {
+            _tapCount = 0;
+            widget.onActivateSubscription(context);
+          }
+        });
+      },
+      child: const Text('Settings'),
     );
   }
 }

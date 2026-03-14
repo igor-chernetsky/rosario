@@ -35,6 +35,8 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
   int rotation = 0;
   bool canRefresh = false;
   bool isCopyMode = false;
+  bool mirrorSelection = false;
+  bool showCopyHelp = false;
   String? copyType; // 'rows' or 'columns'
   Set<int> selectedRows = <int>{};
   Set<int> selectedColumns = <int>{};
@@ -518,6 +520,11 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
         rowsToCopy.add(List<Color?>.from(widget.pattern.matrix![row]));
       }
 
+      // Optionally mirror vertically (reverse row order)
+      if (mirrorSelection) {
+        rowsToCopy = rowsToCopy.reversed.toList();
+      }
+
       // Insert rows above the first selected row
       int insertIndex = selectedRows.first;
       for (int i = 0; i < rowsToCopy.length; i++) {
@@ -539,6 +546,11 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
       List<List<Color?>> rowsToCopy = [];
       for (int row in selectedRows) {
         rowsToCopy.add(List<Color?>.from(widget.pattern.matrix![row]));
+      }
+
+      // Optionally mirror vertically (reverse row order)
+      if (mirrorSelection) {
+        rowsToCopy = rowsToCopy.reversed.toList();
       }
 
       // Insert rows below the last selected row
@@ -566,6 +578,11 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
           column.add(widget.pattern.matrix![row][col]);
         }
         columnsToCopy.add(column);
+      }
+
+      // Optionally mirror horizontally (reverse column order)
+      if (mirrorSelection) {
+        columnsToCopy = columnsToCopy.reversed.toList();
       }
 
       // Insert columns to the left of the first selected column
@@ -597,6 +614,11 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
         columnsToCopy.add(column);
       }
 
+      // Optionally mirror horizontally (reverse column order)
+      if (mirrorSelection) {
+        columnsToCopy = columnsToCopy.reversed.toList();
+      }
+
       // Insert columns to the right of the last selected column
       int insertIndex = selectedColumns.last + 1;
       for (int i = 0; i < columnsToCopy.length; i++) {
@@ -623,30 +645,120 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
               child: Card(
                 color: const Color.fromARGB(180, 202, 202, 202),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     // Copy type selection
                     Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        IconButton(
-                          onPressed: () => switchCopyType('rows'),
-                          icon: Icon(
-                            Icons.view_list,
-                            color:
-                                copyType == 'rows' ? Colors.blue : Colors.grey,
-                          ),
-                          tooltip: 'Copy Rows',
-                        ),
-                        IconButton(
-                          onPressed: () => switchCopyType('columns'),
-                          icon: Icon(
-                            Icons.view_column,
-                            color: copyType == 'columns'
-                                ? Colors.blue
-                                : Colors.grey,
-                          ),
-                          tooltip: 'Copy Columns',
-                        ),
+                        // Copy rows
+                        showCopyHelp
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  const Text(
+                                    'Copy Rows',
+                                    textAlign: TextAlign.right,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  IconButton(
+                                    onPressed: () => switchCopyType('rows'),
+                                    icon: Icon(
+                                      Icons.view_list,
+                                      color: copyType == 'rows'
+                                          ? Colors.blue
+                                          : Colors.grey.shade700,
+                                    ),
+                                    tooltip: 'Copy Rows',
+                                  ),
+                                ],
+                              )
+                            : IconButton(
+                                onPressed: () => switchCopyType('rows'),
+                                icon: Icon(
+                                  Icons.view_list,
+                                  color: copyType == 'rows'
+                                      ? Colors.blue
+                                      : Colors.grey.shade700,
+                                ),
+                                tooltip: 'Copy Rows',
+                              ),
+                        // Copy columns
+                        showCopyHelp
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  const Text(
+                                    'Copy Columns',
+                                    textAlign: TextAlign.right,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  IconButton(
+                                    onPressed: () => switchCopyType('columns'),
+                                    icon: Icon(
+                                      Icons.view_column,
+                                      color: copyType == 'columns'
+                                          ? Colors.blue
+                                          : Colors.grey.shade700,
+                                    ),
+                                    tooltip: 'Copy Columns',
+                                  ),
+                                ],
+                              )
+                            : IconButton(
+                                onPressed: () => switchCopyType('columns'),
+                                icon: Icon(
+                                  Icons.view_column,
+                                  color: copyType == 'columns'
+                                      ? Colors.blue
+                                      : Colors.grey.shade700,
+                                ),
+                                tooltip: 'Copy Columns',
+                              ),
+                        // Mirror selection
+                        showCopyHelp
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  const Text(
+                                    'Mirror',
+                                    textAlign: TextAlign.right,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        mirrorSelection = !mirrorSelection;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      Icons.flip,
+                                      color: mirrorSelection
+                                          ? Colors.blue
+                                          : Colors.grey.shade700,
+                                    ),
+                                    tooltip: 'Mirror Selection',
+                                  ),
+                                ],
+                              )
+                            : IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    mirrorSelection = !mirrorSelection;
+                                  });
+                                },
+                                icon: Icon(
+                                  Icons.flip,
+                                  color: mirrorSelection
+                                      ? Colors.blue
+                                      : Colors.grey.shade700,
+                                ),
+                                tooltip: 'Mirror Selection',
+                              ),
                       ],
                     ),
 
@@ -654,17 +766,53 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
                     if (copyType == 'rows' && selectedRows.isNotEmpty) ...[
                       Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          IconButton(
-                            onPressed: insertRowsAbove,
-                            icon: const Icon(Icons.keyboard_arrow_up),
-                            tooltip: 'Insert Above',
-                          ),
-                          IconButton(
-                            onPressed: insertRowsBelow,
-                            icon: const Icon(Icons.keyboard_arrow_down),
-                            tooltip: 'Insert Below',
-                          ),
+                          showCopyHelp
+                              ? Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    const Text(
+                                      'Insert Above',
+                                      textAlign: TextAlign.right,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    IconButton(
+                                      onPressed: insertRowsAbove,
+                                      icon: const Icon(Icons.keyboard_arrow_up),
+                                      tooltip: 'Insert Above',
+                                    ),
+                                  ],
+                                )
+                              : IconButton(
+                                  onPressed: insertRowsAbove,
+                                  icon: const Icon(Icons.keyboard_arrow_up),
+                                  tooltip: 'Insert Above',
+                                ),
+                          showCopyHelp
+                              ? Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    const Text(
+                                      'Insert Below',
+                                      textAlign: TextAlign.right,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    IconButton(
+                                      onPressed: insertRowsBelow,
+                                      icon:
+                                          const Icon(Icons.keyboard_arrow_down),
+                                      tooltip: 'Insert Below',
+                                    ),
+                                  ],
+                                )
+                              : IconButton(
+                                  onPressed: insertRowsBelow,
+                                  icon: const Icon(Icons.keyboard_arrow_down),
+                                  tooltip: 'Insert Below',
+                                ),
                         ],
                       ),
                     ],
@@ -673,34 +821,128 @@ class _PatternCanvasState extends ConsumerState<PatternCanvas> {
                         selectedColumns.isNotEmpty) ...[
                       Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          IconButton(
-                            onPressed: insertColumnsLeft,
-                            icon: const Icon(Icons.keyboard_arrow_left),
-                            tooltip: 'Insert Left',
-                          ),
-                          IconButton(
-                            onPressed: insertColumnsRight,
-                            icon: const Icon(Icons.keyboard_arrow_right),
-                            tooltip: 'Insert Right',
-                          ),
+                          showCopyHelp
+                              ? Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    const Text(
+                                      'Insert Left',
+                                      textAlign: TextAlign.right,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    IconButton(
+                                      onPressed: insertColumnsLeft,
+                                      icon:
+                                          const Icon(Icons.keyboard_arrow_left),
+                                      tooltip: 'Insert Left',
+                                    ),
+                                  ],
+                                )
+                              : IconButton(
+                                  onPressed: insertColumnsLeft,
+                                  icon: const Icon(Icons.keyboard_arrow_left),
+                                  tooltip: 'Insert Left',
+                                ),
+                          showCopyHelp
+                              ? Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    const Text(
+                                      'Insert Right',
+                                      textAlign: TextAlign.right,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    IconButton(
+                                      onPressed: insertColumnsRight,
+                                      icon: const Icon(
+                                          Icons.keyboard_arrow_right),
+                                      tooltip: 'Insert Right',
+                                    ),
+                                  ],
+                                )
+                              : IconButton(
+                                  onPressed: insertColumnsRight,
+                                  icon: const Icon(Icons.keyboard_arrow_right),
+                                  tooltip: 'Insert Right',
+                                ),
                         ],
                       ),
                     ],
 
                     // Undo button (only show when there are changes to undo)
                     if (ref.read(historyProvider).isNotEmpty)
-                      IconButton(
-                        onPressed: undo,
-                        icon: const Icon(Icons.undo),
-                        tooltip: 'Undo',
-                      ),
+                      showCopyHelp
+                          ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                const Text(
+                                  'Undo',
+                                  textAlign: TextAlign.right,
+                                ),
+                                const SizedBox(width: 4),
+                                IconButton(
+                                  onPressed: undo,
+                                  icon: const Icon(Icons.undo),
+                                  tooltip: 'Undo',
+                                ),
+                              ],
+                            )
+                          : IconButton(
+                              onPressed: undo,
+                              icon: const Icon(Icons.undo),
+                              tooltip: 'Undo',
+                            ),
 
-                    // Exit copy mode button
-                    IconButton(
-                      onPressed: toggleCopyMode,
-                      icon: const Icon(Icons.close),
-                      tooltip: 'Exit Copy Mode',
+                    // Cancel button
+                    showCopyHelp
+                        ? Container(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                const Text(
+                                  'Cancel',
+                                  textAlign: TextAlign.right,
+                                ),
+                                const SizedBox(width: 4),
+                                IconButton(
+                                  onPressed: toggleCopyMode,
+                                  icon: const Icon(Icons.close),
+                                  tooltip: 'Cancel copy',
+                                ),
+                              ],
+                            ),
+                          )
+                        : IconButton(
+                            onPressed: toggleCopyMode,
+                            icon: const Icon(Icons.close),
+                            tooltip: 'Cancel copy',
+                          ),
+
+                    // Help toggle at bottom
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            setState(() {
+                              showCopyHelp = !showCopyHelp;
+                            });
+                          },
+                          icon: Icon(
+                            Icons.help_outline,
+                            color: showCopyHelp
+                                ? Colors.blue
+                                : Colors.grey.shade700,
+                          ),
+                          tooltip: 'Toggle button labels',
+                        ),
+                      ],
                     ),
                   ],
                 ),

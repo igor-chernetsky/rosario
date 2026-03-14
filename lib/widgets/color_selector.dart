@@ -197,7 +197,7 @@ class _ColorSelectorState extends State<ColorSelector> {
     }
     
     // Add color button (always visible)
-    Widget addColorButton = colorsList.length < 9
+    Widget addColorButton = colorsList.length < 20
         ? IconButton(onPressed: addColor, icon: const Icon(Icons.plus_one))
         : const SizedBox.shrink();
     
