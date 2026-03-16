@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'platform_helper.dart';
+
 class SubscriptionService {
   static const String _subscriptionKey = 'is_subscribed';
   /// Product ID must match App Store Connect (iOS) and Google Play (Android).
@@ -81,8 +83,10 @@ class SubscriptionService {
     }
 
     final ProductDetails productDetails = _products.first;
+    // On iOS, applicationUserName must be non-null for StoreKit (e.g. iOS 18+); helps restore too.
     final PurchaseParam purchaseParam = PurchaseParam(
       productDetails: productDetails,
+      applicationUserName: isIOS ? 'rosario_app_user' : null,
     );
 
     _purchasePending = true;

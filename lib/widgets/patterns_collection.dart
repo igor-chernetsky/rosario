@@ -59,57 +59,71 @@ class _PatternsCollectionState extends State<PatternsCollection> {
           availablePatterns: availablePatternTypes,
         ),
         
-        // Patterns grid
+        // Patterns grid: 3 columns on medium+ (e.g. iPad), 2 on phone; image fills space above title
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(8),
-            child: GridView.count(
-              childAspectRatio: 0.9,
-              crossAxisCount: 2,
-              mainAxisSpacing: 4,
-              crossAxisSpacing: 4,
-              children: filteredItems.map((pattern) {
-                BeadsPattern item = BeadsPattern(
-                    width: pattern.width,
-                    height: pattern.height,
-                    patternId: pattern.patternId,
-                    matrix: [...pattern.matrix!],
-                    name: pattern.name,
-                    colors: pattern.colors,
-                    xdelta: pattern.xdelta,
-                    ydelta: pattern.ydelta);
-                return InkWell(
-                  onTap: () => Navigator.of(context)
-                      .pushNamed(EditPatternScreen.routeName, arguments: item),
-                  child: Card(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Image.asset(
-                            'assets/img/${item.name?.replaceAll(' ', '')}.png',
-                            width: double.infinity,
-                            height: 120,
-                            fit: BoxFit.fitHeight,
-                          ),
+            child: Builder(
+              builder: (context) {
+                final width = MediaQuery.of(context).size.width;
+                final isMediumOrLarger = width >= 600;
+                final crossAxisCount = isMediumOrLarger ? 3 : 2;
+                final childAspectRatio = isMediumOrLarger ? 0.8 : 0.9;
+                return GridView.count(
+                  childAspectRatio: childAspectRatio,
+                  crossAxisCount: crossAxisCount,
+                  mainAxisSpacing: 4,
+                  crossAxisSpacing: 4,
+                  children: filteredItems.map((pattern) {
+                    BeadsPattern item = BeadsPattern(
+                        width: pattern.width,
+                        height: pattern.height,
+                        patternId: pattern.patternId,
+                        matrix: [...pattern.matrix!],
+                        name: pattern.name,
+                        colors: pattern.colors,
+                        xdelta: pattern.xdelta,
+                        ydelta: pattern.ydelta);
+                    return InkWell(
+                      onTap: () => Navigator.of(context)
+                          .pushNamed(EditPatternScreen.routeName, arguments: item),
+                      child: Card(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 8.0, left: 4, right: 4),
+                                child: Image.asset(
+                                  'assets/img/${item.name?.replaceAll(' ', '')}.png',
+                                  width: double.infinity,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              height: 50,
+                              padding: const EdgeInsets.all(8.0),
+                              alignment: Alignment.center,
+                              child: Text(
+                                item.name ?? item.patternId,
+                                style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
                         ),
-                        Container(
-                          height: 50,
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            item.name ?? item.patternId,
-                            style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  }).toList(),
                 );
-              }).toList(),
+              },
             ),
           ),
         ),

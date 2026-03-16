@@ -16,8 +16,9 @@ class CommunityCollection extends StatefulWidget {
 }
 
 class _CommunityCollectionState extends State<CommunityCollection> {
-  static const int MAX_PATTERNS = 5; // For testing, limit free users to 5 patterns
-  
+  static const int MAX_PATTERNS =
+      5; // For testing, limit free users to 5 patterns
+
   List<BeadsPattern> items = [];
   Map<String, String> patternIdToUserName = {}; // Map pattern ID to user name
   Map<String, String> patternIdToImageUrl = {}; // Map pattern ID to image URL
@@ -61,12 +62,12 @@ class _CommunityCollectionState extends State<CommunityCollection> {
             // Parse the pattern JSON string
             final patternJson = jsonDecode(item['pattern'] as String);
             final pattern = _parsePatternFromJson(patternJson);
-            
+
             // Use the API item's id (top-level id from response)
             final itemId = item['id'] as String? ?? pattern.id ?? '';
             final userName = item['userName'] as String? ?? 'Unknown';
             final imageUrl = item['image'] as String?;
-            
+
             // Ensure pattern has the API item's id for mapping
             if (itemId.isNotEmpty) {
               pattern.id = itemId;
@@ -80,7 +81,7 @@ class _CommunityCollectionState extends State<CommunityCollection> {
                 idToImageUrl[pattern.id!] = imageUrl;
               }
             }
-            
+
             patterns.add(pattern);
           } catch (e) {
             // Skip invalid patterns
@@ -145,13 +146,15 @@ class _CommunityCollectionState extends State<CommunityCollection> {
   List<BeadsPattern> getFilteredPatterns() {
     List<BeadsPattern> filtered = selectedFilter == null
         ? items
-        : items.where((pattern) => pattern.patternId == selectedFilter).toList();
-    
+        : items
+            .where((pattern) => pattern.patternId == selectedFilter)
+            .toList();
+
     // Limit patterns for free users
     if (!isSubscribed && filtered.length > MAX_PATTERNS) {
       return filtered.take(MAX_PATTERNS).toList();
     }
-    
+
     return filtered;
   }
 
@@ -197,8 +200,11 @@ class _CommunityCollectionState extends State<CommunityCollection> {
     final availablePatternTypes = getAvailablePatternTypes();
     final allFilteredItems = selectedFilter == null
         ? items
-        : items.where((pattern) => pattern.patternId == selectedFilter).toList();
-    final showSubscribeButton = !isSubscribed && allFilteredItems.length > MAX_PATTERNS;
+        : items
+            .where((pattern) => pattern.patternId == selectedFilter)
+            .toList();
+    final showSubscribeButton =
+        !isSubscribed && allFilteredItems.length > MAX_PATTERNS;
 
     return Column(
       children: [
@@ -225,67 +231,90 @@ class _CommunityCollectionState extends State<CommunityCollection> {
                       style: TextStyle(color: Colors.white),
                     ),
                   )
-                : GridView.count(
-                    childAspectRatio: 0.9,
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 4,
-                    crossAxisSpacing: 4,
-                    children: filteredItems.map((pattern) {
-                      final userName = pattern.id != null && patternIdToUserName.containsKey(pattern.id!)
-                          ? patternIdToUserName[pattern.id!]!
-                          : 'Unknown';
-                      final imageUrl = pattern.id != null && patternIdToImageUrl.containsKey(pattern.id!)
-                          ? patternIdToImageUrl[pattern.id!]
-                          : null;
+                : Builder(
+                    builder: (context) {
+                      final width = MediaQuery.of(context).size.width;
+                      final isMediumOrLarger = width >= 600;
+                      final crossAxisCount = isMediumOrLarger ? 3 : 2;
+                      final childAspectRatio = isMediumOrLarger ? 0.8 : 0.9;
+                      return GridView.count(
+                        childAspectRatio: childAspectRatio,
+                        crossAxisCount: crossAxisCount,
+                        mainAxisSpacing: 4,
+                        crossAxisSpacing: 4,
+                        children: filteredItems.map((pattern) {
+                          final userName = pattern.id != null &&
+                                  patternIdToUserName.containsKey(pattern.id!)
+                              ? patternIdToUserName[pattern.id!]!
+                              : 'Unknown';
+                          final imageUrl = pattern.id != null &&
+                                  patternIdToImageUrl.containsKey(pattern.id!)
+                              ? patternIdToImageUrl[pattern.id!]
+                              : null;
 
-                      BeadsPattern item = BeadsPattern(
-                          width: pattern.width,
-                          height: pattern.height,
-                          patternId: pattern.patternId,
-                          matrix: [...pattern.matrix!],
-                          name: pattern.name,
-                          colors: pattern.colors,
-                          xdelta: pattern.xdelta,
-                          ydelta: pattern.ydelta,
-                          id: pattern.id);
+                          BeadsPattern item = BeadsPattern(
+                              width: pattern.width,
+                              height: pattern.height,
+                              patternId: pattern.patternId,
+                              matrix: [...pattern.matrix!],
+                              name: pattern.name,
+                              colors: pattern.colors,
+                              xdelta: pattern.xdelta,
+                              ydelta: pattern.ydelta,
+                              id: pattern.id);
 
-                      return InkWell(
-                        onTap: () => Navigator.of(context)
-                            .pushNamed(EditPatternScreen.routeName, arguments: item),
-                        child: Card(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: imageUrl != null
-                                    ? Container(
-                                        width: double.infinity,
-                                        height: 120,
-                                        alignment: Alignment.center,
-                                        child: Image.network(
-                                          imageUrl,
-                                          fit: BoxFit.contain,
-                                          loadingBuilder: (context, child, loadingProgress) {
-                                            if (loadingProgress == null) return child;
-                                            return Container(
-                                              height: 120,
-                                              width: double.infinity,
-                                              color: Colors.grey[300],
-                                              child: Center(
-                                                child: CircularProgressIndicator(
-                                                  value: loadingProgress.expectedTotalBytes != null
-                                                      ? loadingProgress.cumulativeBytesLoaded /
-                                                          loadingProgress.expectedTotalBytes!
-                                                      : null,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          errorBuilder: (context, error, stackTrace) {
-                                            // If image fails to load, show a placeholder
-                                            return Container(
-                                              height: 120,
+                          return InkWell(
+                            onTap: () => Navigator.of(context).pushNamed(
+                                EditPatternScreen.routeName,
+                                arguments: item),
+                            child: Card(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 8.0, left: 4, right: 4),
+                                      child: imageUrl != null
+                                          ? Image.network(
+                                              imageUrl,
+                                              fit: BoxFit.contain,
+                                              loadingBuilder: (context, child,
+                                                  loadingProgress) {
+                                                if (loadingProgress == null)
+                                                  return child;
+                                                return Container(
+                                                  width: double.infinity,
+                                                  color: Colors.grey[300],
+                                                  child: Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      value: loadingProgress
+                                                                  .expectedTotalBytes !=
+                                                              null
+                                                          ? loadingProgress
+                                                                  .cumulativeBytesLoaded /
+                                                              loadingProgress
+                                                                  .expectedTotalBytes!
+                                                          : null,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Container(
+                                                  width: double.infinity,
+                                                  color: Colors.grey[300],
+                                                  child: const Icon(
+                                                    Icons.image,
+                                                    size: 60,
+                                                    color: Colors.grey,
+                                                  ),
+                                                );
+                                              },
+                                            )
+                                          : Container(
                                               width: double.infinity,
                                               color: Colors.grey[300],
                                               child: const Icon(
@@ -293,48 +322,52 @@ class _CommunityCollectionState extends State<CommunityCollection> {
                                                 size: 60,
                                                 color: Colors.grey,
                                               ),
-                                            );
-                                          },
-                                        ),
-                                      )
-                                    : Container(
-                                        height: 120,
-                                        width: double.infinity,
-                                        color: Colors.grey[300],
-                                        child: const Icon(
-                                          Icons.image,
-                                          size: 60,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      item.name ?? item.patternId,
-                                      style: TextStyle(
-                                          color: Theme.of(context).primaryColor,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500),
+                                            ),
                                     ),
-                                    if (userName.isNotEmpty && userName != 'Unknown')
-                                      Text(
-                                        'from $userName',
-                                        style: TextStyle(
-                                            color: Theme.of(context).primaryColor.withOpacity(0.7),
-                                            fontSize: 12),
-                                      ),
-                                  ],
-                                ),
+                                  ),
+                                  Container(
+                                    height: 56,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0, vertical: 6.0),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          item.name ?? item.patternId,
+                                          style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        if (userName.isNotEmpty &&
+                                            userName != 'Unknown')
+                                          Text(
+                                            'from $userName',
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .primaryColor
+                                                    .withOpacity(0.7),
+                                                fontSize: 12),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ),
+                            ),
+                          );
+                        }).toList(),
                       );
-                    }).toList(),
+                    },
                   ),
           ),
         ),
@@ -360,7 +393,8 @@ class _CommunityCollectionState extends State<CommunityCollection> {
                     const SizedBox(height: 12),
                     ElevatedButton.icon(
                       onPressed: () async {
-                        await Navigator.of(context).pushNamed(SettingsScreen.routeName);
+                        await Navigator.of(context)
+                            .pushNamed(SettingsScreen.routeName);
                         // Refresh subscription status when returning from settings
                         _checkSubscriptionStatus();
                       },
@@ -414,4 +448,3 @@ class _CommunityCollectionState extends State<CommunityCollection> {
     );
   }
 }
-

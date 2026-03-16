@@ -45,7 +45,7 @@ class _SagradaAppState extends ConsumerState<SagradaApp> {
     // Initialize patterns
     final res = await dbHelper.queryAllRows();
     ref.read(myPatternsProvider.notifier).initPatterns(res);
-    
+
     // Check for updates after a short delay to allow the app to load
     await Future.delayed(const Duration(seconds: 2));
     await ref.read(versionCheckProvider.notifier).checkForUpdates();
@@ -71,6 +71,9 @@ class _SagradaAppState extends ConsumerState<SagradaApp> {
 
     return MaterialApp(
       title: 'Rosario',
+      debugShowCheckedModeBanner: false,
+      debugShowMaterialGrid: false,
+      showSemanticsDebugger: false,
       theme: ThemeData(
         primaryColor: MaterialColor(0xFF0A3042, colorMap),
         outlinedButtonTheme: OutlinedButtonThemeData(

@@ -24,8 +24,11 @@ class SettingsScreen extends ConsumerWidget {
             await UserPrefsService.setSubscribed(true);
             if (ctx.mounted) {
               ScaffoldMessenger.of(ctx).showSnackBar(
-                const SnackBar(
-                  content: Text('Subscription activated'),
+                SnackBar(
+                  content: const Text(
+                    'Subscription activated',
+                    style: TextStyle(color: Colors.white),
+                  ),
                   backgroundColor: Colors.green,
                 ),
               );
@@ -42,7 +45,8 @@ class SettingsScreen extends ConsumerWidget {
             child: ListTile(
               leading: const Icon(Icons.info_outline),
               title: const Text('App Information'),
-              subtitle: Text('Version: ${versionState.versionInfo?.currentVersion ?? 'Unknown'}'),
+              subtitle: Text(
+                  'Version: ${versionState.versionInfo?.currentVersion ?? 'Unknown'}'),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () => _showAppInfo(context, ref),
             ),
@@ -66,7 +70,9 @@ class SettingsScreen extends ConsumerWidget {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.arrow_forward_ios),
-              onTap: versionState.isLoading ? null : () => _checkForUpdates(context, ref),
+              onTap: versionState.isLoading
+                  ? null
+                  : () => _checkForUpdates(context, ref),
             ),
           ),
           const SizedBox(height: 16),
@@ -119,7 +125,8 @@ class SettingsScreen extends ConsumerWidget {
           children: [
             Text('App Name: Rosario'),
             const SizedBox(height: 8),
-            Text('Version: ${ref.read(versionCheckProvider).versionInfo?.currentVersion ?? 'Unknown'}'),
+            Text(
+                'Version: ${ref.read(versionCheckProvider).versionInfo?.currentVersion ?? 'Unknown'}'),
             const SizedBox(height: 8),
             const Text('Description: Beads pattern application'),
             const SizedBox(height: 8),
@@ -138,9 +145,10 @@ class SettingsScreen extends ConsumerWidget {
 
   Future<void> _checkForUpdates(BuildContext context, WidgetRef ref) async {
     await ref.read(versionCheckProvider.notifier).checkForUpdates();
-    
+
     final versionState = ref.read(versionCheckProvider);
-    if (versionState.versionInfo != null && versionState.versionInfo!.isUpdateAvailable) {
+    if (versionState.versionInfo != null &&
+        versionState.versionInfo!.isUpdateAvailable) {
       showUpdateDialogIfNeeded(
         context,
         versionState.versionInfo!,
@@ -155,8 +163,11 @@ class SettingsScreen extends ConsumerWidget {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('You\'re using the latest version!'),
+        SnackBar(
+          content: const Text(
+            'You\'re using the latest version!',
+            style: TextStyle(color: Colors.white),
+          ),
           backgroundColor: Colors.green,
         ),
       );
@@ -165,9 +176,10 @@ class SettingsScreen extends ConsumerWidget {
 
   Future<void> _openRateAndReview(BuildContext context) async {
     try {
-      const url = 'https://play.google.com/store/apps/details?id=com.blackcross.sagrada&showAllReviews=true';
+      const url =
+          'https://play.google.com/store/apps/details?id=com.blackcross.sagrada&showAllReviews=true';
       final uri = Uri.parse(url);
-      
+
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
@@ -207,14 +219,23 @@ class SettingsScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (isSubscribed)
-                const Text('You have an active subscription. Thank you for your support!')
+                const Text(
+                    'You have an active subscription. Thank you for your support!')
               else ...[
-                const Text('Subscribe to support the author and get access to all Community patterns.'),
+                const Text(
+                    'Subscribe to support the author and get access to all Community patterns.'),
                 if (isIOS) ...[
                   const SizedBox(height: 8),
                   const Text(
-                    'On iOS, subscription also includes Import from image: create patterns from your photos.',
+                    'Enable Import from image: create patterns from your photos.',
                     style: TextStyle(fontSize: 13),
+                  ),
+                ],
+                if (product == null && isIOS) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    'Product not loaded. Set up In-App Purchase in App Store Connect (product ID: ${SubscriptionService.subscriptionProductId}), or tap Restore if you already purchased.',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[700]),
                   ),
                 ],
                 if (product != null) ...[
@@ -233,7 +254,8 @@ class SettingsScreen extends ConsumerWidget {
                 ElevatedButton(
                   onPressed: () async {
                     try {
-                      final success = await subscriptionService.purchaseSubscription();
+                      final success =
+                          await subscriptionService.purchaseSubscription();
                       if (context.mounted) {
                         if (success) {
                           Navigator.of(context).pop();
@@ -246,7 +268,8 @@ class SettingsScreen extends ConsumerWidget {
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Failed to start purchase. Please try again.'),
+                              content: Text(
+                                  'Failed to start purchase. Please try again.'),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -274,11 +297,13 @@ class SettingsScreen extends ConsumerWidget {
                           : 'https://play.google.com/store/account/subscriptions';
                       final uri = Uri.parse(url);
                       if (await canLaunchUrl(uri)) {
-                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                        await launchUrl(uri,
+                            mode: LaunchMode.externalApplication);
                       } else if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Could not open subscription management'),
+                            content:
+                                Text('Could not open subscription management'),
                             backgroundColor: Colors.red,
                           ),
                         );
@@ -287,7 +312,8 @@ class SettingsScreen extends ConsumerWidget {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Could not open subscription management'),
+                            content:
+                                Text('Could not open subscription management'),
                             backgroundColor: Colors.red,
                           ),
                         );
