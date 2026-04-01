@@ -11,6 +11,10 @@ import '../services/subscription_service.dart';
 class SettingsScreen extends ConsumerWidget {
   static const String routeName = '/settings';
 
+  /// High-contrast snackbar text on colored backgrounds (blue/red).
+  static const TextStyle _snackbarOnColorText =
+      TextStyle(color: Colors.white, fontWeight: FontWeight.w500);
+
   const SettingsScreen({super.key});
 
   @override
@@ -253,37 +257,43 @@ class SettingsScreen extends ConsumerWidget {
               if (!isSubscribed)
                 ElevatedButton(
                   onPressed: () async {
+                    final messenger = ScaffoldMessenger.of(context);
+                    Navigator.of(context).pop();
+                    await Future<void>.delayed(const Duration(milliseconds: 150));
                     try {
                       final success =
                           await subscriptionService.purchaseSubscription();
-                      if (context.mounted) {
-                        if (success) {
-                          Navigator.of(context).pop();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Processing subscription...'),
-                              backgroundColor: Colors.blue,
+                      if (success) {
+                        messenger.showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Processing subscription…',
+                              style: _snackbarOnColorText,
                             ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Failed to start purchase. Please try again.'),
-                              backgroundColor: Colors.red,
+                            backgroundColor: Color(0xFF0D47A1),
+                          ),
+                        );
+                      } else {
+                        messenger.showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Failed to start purchase. Please try again.',
+                              style: _snackbarOnColorText,
                             ),
-                          );
-                        }
-                      }
-                    } catch (e) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Error: $e'),
                             backgroundColor: Colors.red,
                           ),
                         );
                       }
+                    } catch (e) {
+                      messenger.showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Error: $e',
+                            style: _snackbarOnColorText,
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
                     }
                   },
                   child: const Text('Subscribe'),
@@ -302,8 +312,10 @@ class SettingsScreen extends ConsumerWidget {
                       } else if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content:
-                                Text('Could not open subscription management'),
+                            content: Text(
+                              'Could not open subscription management',
+                              style: _snackbarOnColorText,
+                            ),
                             backgroundColor: Colors.red,
                           ),
                         );
@@ -312,8 +324,10 @@ class SettingsScreen extends ConsumerWidget {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content:
-                                Text('Could not open subscription management'),
+                            content: Text(
+                              'Could not open subscription management',
+                              style: _snackbarOnColorText,
+                            ),
                             backgroundColor: Colors.red,
                           ),
                         );
@@ -332,8 +346,11 @@ class SettingsScreen extends ConsumerWidget {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Restoring purchases...'),
-                        backgroundColor: Colors.blue,
+                        content: Text(
+                          'Restoring purchases…',
+                          style: _snackbarOnColorText,
+                        ),
+                        backgroundColor: Color(0xFF0D47A1),
                       ),
                     );
                   }

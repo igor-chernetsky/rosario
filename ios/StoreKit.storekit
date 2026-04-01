@@ -1,0 +1,79 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "4529CD68",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6760446925",
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_developerTeamID" : "FNMGYX934Y",
+    "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 796462235.55112004,
+    "_locale" : "en_US",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ],
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21977348",
+      "localizations" : [
+
+      ],
+      "name" : "Rosario",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "6.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6760574240",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Get access to community patterns and photo import",
+              "displayName" : "Rosario Pro",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "pro",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Rosario Pro",
+          "subscriptionGroupID" : "21977348",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

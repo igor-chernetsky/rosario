@@ -1,21 +1,43 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'platform_helper.dart';
 
+/// Single shared instance so [purchaseStream] is only subscribed once and
+/// [purchasePending] is not split across multiple dialog opens.
 class SubscriptionService {
+  SubscriptionService._internal();
+  static final SubscriptionService _instance = SubscriptionService._internal();
+  factory SubscriptionService() => _instance;
+
   static const String _subscriptionKey = 'is_subscribed';
   /// Product ID must match App Store Connect (iOS) and Google Play (Android).
   static const String subscriptionProductId = 'pro';
   static const String _subscriptionProductId = subscriptionProductId;
-  
+
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
   StreamSubscription<List<PurchaseDetails>>? _subscription;
   bool _isAvailable = false;
   List<ProductDetails> _products = [];
   bool _purchasePending = false;
+  Timer? _stalePurchaseTimer;
+
+  void _cancelStalePurchaseTimer() {
+    _stalePurchaseTimer?.cancel();
+    _stalePurchaseTimer = null;
+  }
+
+  /// If StoreKit never sends a terminal update (common on simulator), unblock new attempts.
+  void _scheduleStalePurchaseReset() {
+    _cancelStalePurchaseTimer();
+    _stalePurchaseTimer = Timer(const Duration(minutes: 2), () {
+      if (_purchasePending) {
+        _purchasePending = false;
+      }
+      _stalePurchaseTimer = null;
+    });
+  }
 
   // Check if subscription is active
   static Future<bool> isSubscribed() async {
@@ -40,19 +62,16 @@ class SubscriptionService {
   // Initialize the service
   Future<void> initialize() async {
     _isAvailable = await _inAppPurchase.isAvailable();
-    
+
     if (_isAvailable) {
-      // Listen to purchase updates
+      await _subscription?.cancel();
       _subscription = _inAppPurchase.purchaseStream.listen(
         _onPurchaseUpdate,
         onDone: () => _subscription?.cancel(),
-        onError: (error) => debugPrint('Purchase stream error: $error'),
+        onError: (_) {},
       );
 
-      // Load products
       await loadProducts();
-      
-      // Restore purchases
       await restorePurchases();
     }
   }
@@ -63,10 +82,6 @@ class SubscriptionService {
 
     final Set<String> productIds = {_subscriptionProductId};
     final ProductDetailsResponse response = await _inAppPurchase.queryProductDetails(productIds);
-
-    if (response.notFoundIDs.isNotEmpty) {
-      debugPrint('Product not found: ${response.notFoundIDs}');
-    }
 
     _products = response.productDetails;
   }
@@ -83,19 +98,29 @@ class SubscriptionService {
     }
 
     final ProductDetails productDetails = _products.first;
-    // On iOS, applicationUserName must be non-null for StoreKit (e.g. iOS 18+); helps restore too.
     final PurchaseParam purchaseParam = PurchaseParam(
       productDetails: productDetails,
       applicationUserName: isIOS ? 'rosario_app_user' : null,
     );
 
     _purchasePending = true;
-    final bool success = await _inAppPurchase.buyNonConsumable(
-      purchaseParam: purchaseParam,
-    );
+    bool success = false;
+    try {
+      success = await _inAppPurchase
+          .buyNonConsumable(purchaseParam: purchaseParam)
+          .timeout(
+        const Duration(seconds: 45),
+        onTimeout: () => false,
+      );
+    } catch (_) {
+      success = false;
+    }
 
     if (!success) {
       _purchasePending = false;
+      _cancelStalePurchaseTimer();
+    } else {
+      _scheduleStalePurchaseReset();
     }
 
     return success;
@@ -111,17 +136,17 @@ class SubscriptionService {
   // Handle purchase updates
   void _onPurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) {
     for (final PurchaseDetails purchaseDetails in purchaseDetailsList) {
-      if (purchaseDetails.status == PurchaseStatus.pending) {
-        // Show pending UI
-        debugPrint('Purchase pending');
-      } else {
+      if (purchaseDetails.status != PurchaseStatus.pending) {
         if (purchaseDetails.status == PurchaseStatus.error) {
-          debugPrint('Purchase error: ${purchaseDetails.error}');
           _purchasePending = false;
+          _cancelStalePurchaseTimer();
+        } else if (purchaseDetails.status == PurchaseStatus.canceled) {
+          _purchasePending = false;
+          _cancelStalePurchaseTimer();
         } else if (purchaseDetails.status == PurchaseStatus.purchased ||
             purchaseDetails.status == PurchaseStatus.restored) {
-          // Verify and activate subscription
           _verifyPurchase(purchaseDetails);
+          _cancelStalePurchaseTimer();
         }
 
         if (purchaseDetails.pendingCompletePurchase) {
@@ -133,16 +158,14 @@ class SubscriptionService {
 
   // Verify purchase and activate subscription
   void _verifyPurchase(PurchaseDetails purchaseDetails) {
-    // Check if this is our subscription product
     if (purchaseDetails.productID == _subscriptionProductId) {
-      // Verify the purchase is valid
       if (purchaseDetails.status == PurchaseStatus.purchased ||
           purchaseDetails.status == PurchaseStatus.restored) {
-        // Activate subscription
         setSubscribed(true);
         _purchasePending = false;
-        debugPrint('Subscription activated');
       }
+    } else {
+      _purchasePending = false;
     }
   }
 
@@ -155,16 +178,15 @@ class SubscriptionService {
       return await isSubscribed();
     }
 
-    // Restore purchases to check current status
     await restorePurchases();
-    
-    // Return cached status (will be updated by purchase stream)
+
     return await isSubscribed();
   }
 
   // Dispose
   void dispose() {
+    _cancelStalePurchaseTimer();
     _subscription?.cancel();
+    _subscription = null;
   }
 }
-

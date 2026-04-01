@@ -114,12 +114,12 @@ SPEC CHECKSUMS:
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
   file_picker: b159e0c068aef54932bb15dc9fd1571818edaf49
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_image_gallery_saver: f356b5f265ba4e36f38b2fe96d0468e0712a6b37
   flutter_native_splash: df59bb2e1421aa0282cb2e95618af4dcb0c56c29
   image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
   in_app_purchase_storekit: a1ce04056e23eecc666b086040239da7619cd783
-  package_info_plus: 115f4ad11e0698c8c1c5d8a689390df880f47e85
+  package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
@@ -128,6 +128,6 @@ SPEC CHECKSUMS:
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
 
-PODFILE CHECKSUM: c4c93c5f6502fe2754f48404d3594bf779584011
+PODFILE CHECKSUM: 0dbd5a87e0ace00c9610d2037ac22083a01f861d
 
 COCOAPODS: 1.16.2
