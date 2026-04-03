@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/version_service.dart';
+import '../services/platform_helper.dart';
 
 class UpdateDialog extends StatelessWidget {
   final VersionInfo versionInfo;
@@ -156,10 +157,16 @@ class UpdateDialog extends StatelessWidget {
           onDismiss!();
         }
       } else {
-        _showErrorSnackBar(context, 'Could not open Google Play Store');
+        _showErrorSnackBar(
+          context,
+          isIOS ? 'Could not open the App Store' : 'Could not open Google Play Store',
+        );
       }
     } catch (e) {
-      _showErrorSnackBar(context, 'Error opening Google Play Store: $e');
+      _showErrorSnackBar(
+        context,
+        isIOS ? 'Error opening the App Store: $e' : 'Error opening Google Play Store: $e',
+      );
     }
   }
 

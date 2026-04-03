@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/version_provider.dart';
 import '../widgets/update_dialog.dart';
-import '../services/version_service.dart';
 import '../services/platform_helper.dart';
 import '../services/user_prefs_service.dart';
 import '../services/subscription_service.dart';
@@ -14,6 +13,17 @@ class SettingsScreen extends ConsumerWidget {
   /// High-contrast snackbar text on colored backgrounds (blue/red).
   static const TextStyle _snackbarOnColorText =
       TextStyle(color: Colors.white, fontWeight: FontWeight.w500);
+
+  static const String _privacyPolicyUrl =
+      'https://docs.google.com/document/d/1f7cX7a0JSN65tqRECnQZV3Xo1beqz11-YP-39oFgbk8/edit?tab=t.0';
+
+  // iOS-only.
+  static const String _termsOfUseUrl =
+      'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
+  static const String _playStoreReviewUrl =
+      'https://play.google.com/store/apps/details?id=com.blackcross.sagrada&showAllReviews=true';
+  static const String _appStoreReviewUrl =
+      'https://apps.apple.com/app/id6760446925?action=write-review';
 
   const SettingsScreen({super.key});
 
@@ -84,7 +94,11 @@ class SettingsScreen extends ConsumerWidget {
             child: ListTile(
               leading: const Icon(Icons.star_rate),
               title: const Text('Rate and Review'),
-              subtitle: const Text('Rate our app on Google Play Store'),
+              subtitle: Text(
+                isIOS
+                    ? 'Rate our app on the App Store'
+                    : 'Rate our app on Google Play Store',
+              ),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () => _openRateAndReview(context),
             ),
@@ -111,6 +125,50 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black87,
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    ),
+                    onPressed: () async {
+                      final uri = Uri.parse(_privacyPolicyUrl);
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri,
+                            mode: LaunchMode.externalApplication);
+                      }
+                    },
+                    child: const Text('Privacy Policy'),
+                  ),
+                  if (isIOS)
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black87,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                      ),
+                      onPressed: () async {
+                        final uri = Uri.parse(_termsOfUseUrl);
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri,
+                              mode: LaunchMode.externalApplication);
+                        }
+                      },
+                      child: const Text('Terms of Use'),
+                    ),
+                ],
+              ),
             ),
           ),
         ],
@@ -180,17 +238,22 @@ class SettingsScreen extends ConsumerWidget {
 
   Future<void> _openRateAndReview(BuildContext context) async {
     try {
-      const url =
-          'https://play.google.com/store/apps/details?id=com.blackcross.sagrada&showAllReviews=true';
+      final url = isIOS ? _appStoreReviewUrl : _playStoreReviewUrl;
       final uri = Uri.parse(url);
 
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        _showErrorSnackBar(context, 'Could not open Google Play Store');
+        _showErrorSnackBar(
+          context,
+          isIOS ? 'Could not open the App Store' : 'Could not open Google Play Store',
+        );
       }
     } catch (e) {
-      _showErrorSnackBar(context, 'Error opening Google Play Store: $e');
+      _showErrorSnackBar(
+        context,
+        isIOS ? 'Error opening the App Store: $e' : 'Error opening Google Play Store: $e',
+      );
     }
   }
 
@@ -245,17 +308,32 @@ class SettingsScreen extends ConsumerWidget {
                 if (product != null) ...[
                   const SizedBox(height: 12),
                   Text(
-                    'Price: ${product.price}',
+                    'Price: ${product.price}/month',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
+                  if (isIOS) ...[
+                    const SizedBox(height: 8),
+                    const Text(
+                      'This is an auto-renewable subscription.\n'
+                      'Subscription renews automatically unless canceled at least 24 hours before the end of the current period.\n'
+                      'Manage your subscription in your Apple ID settings.',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ],
                 ],
               ],
               const SizedBox(height: 16),
               if (!isSubscribed)
-                ElevatedButton(
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black87,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
                   onPressed: () async {
                     final messenger = ScaffoldMessenger.of(context);
                     Navigator.of(context).pop();
@@ -299,7 +377,13 @@ class SettingsScreen extends ConsumerWidget {
                   child: const Text('Subscribe'),
                 ),
               if (isSubscribed)
-                ElevatedButton(
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black87,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
                   onPressed: () async {
                     try {
                       final String url = isIOS
@@ -334,13 +418,16 @@ class SettingsScreen extends ConsumerWidget {
                       }
                     }
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
-                  ),
                   child: const Text('Manage Subscription'),
                 ),
               const SizedBox(height: 8),
               TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black87,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
                 onPressed: () async {
                   await subscriptionService.restorePurchases();
                   if (context.mounted) {
@@ -356,6 +443,45 @@ class SettingsScreen extends ConsumerWidget {
                   }
                 },
                 child: const Text('Restore Purchases'),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black87,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                    ),
+                    onPressed: () async {
+                      final uri = Uri.parse(_privacyPolicyUrl);
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri,
+                            mode: LaunchMode.externalApplication);
+                      }
+                    },
+                    child: const Text('Privacy Policy'),
+                  ),
+                  if (isIOS)
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black87,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                      ),
+                      onPressed: () async {
+                        final uri = Uri.parse(_termsOfUseUrl);
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri,
+                              mode: LaunchMode.externalApplication);
+                        }
+                      },
+                      child: const Text('Terms of Use'),
+                    ),
+                ],
               ),
             ],
           ),
